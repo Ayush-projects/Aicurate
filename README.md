@@ -371,7 +371,7 @@ sequenceDiagram
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/aicurate.git
+   git clone https://github.com/Ayush-projects/aicurate.git
    cd aicurate
    ```
 
