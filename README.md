@@ -29,8 +29,8 @@ The platform processes multimodal data (documents, videos, financial models) to 
 
 ## Demo
 
-- **Live Demo**: [Link to Demo](https://your-demo-link.com)
-- **Video Walkthrough**: [Link to Video](https://your-video-link.com)
+- **Live Demo**: [Link to Demo](https://aicurate.onrender.com)
+- **Video Walkthrough**: [Link to Video](https://youtu.be/Mtvc1BVQ-3Q?feature=shared)
 - **Pitch Deck**: [Download PDF](https://drive.google.com/file/d/123S0ZJMxMtClfJS2-RfFTm7uxHb_NfFm/view?usp=sharing)
 
 ### Screenshots Gallery
