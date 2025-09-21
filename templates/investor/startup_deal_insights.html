@@ -1,0 +1,4098 @@
+{% extends "base.html" %}
+
+{% block title %}Deal Insights Dashboard - {{ startup_report.submission.startupName if startup_report and startup_report.submission else 'Startup Analysis' }}{% endblock %}
+
+{% block extra_head %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+<!-- Chart.js Plugins -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-gradient@0.0.4/dist/chartjs-plugin-gradient.min.js"></script>
+
+<style>
+    :root {
+        --bg: #fafbfc;
+        --surface: #ffffff;
+        --surface-2: #f8fafc;
+        --surface-3: #f1f5f9;
+        --text: #1e293b;
+        --text-2: #334155;
+        --muted: #64748b;
+        --muted-2: #94a3b8;
+        --border: #e2e8f0;
+        --border-2: #cbd5e1;
+        
+        /* Professional Brand Colors - Clean & Business */
+        --brand: #3b82f6;
+        --brand-2: #1d4ed8;
+        --brand-3: #1e40af;
+        --brand-4: #1e3a8a;
+        --brand-5: #1e3a8a;
+        
+        /* Status Colors */
+        --success: #059669;
+        --success-2: #10b981;
+        --success-3: #34d399;
+        --warning: #d97706;
+        --warning-2: #f59e0b;
+        --warning-3: #fbbf24;
+        --danger: #dc2626;
+        --danger-2: #ef4444;
+        --danger-3: #f87171;
+        --info: #0284c7;
+        --info-2: #0ea5e9;
+        --info-3: #38bdf8;
+        
+        /* Professional Gradients - Clean & Business */
+        --gradient-primary: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        --gradient-success: linear-gradient(135deg, #10b981, #059669);
+        --gradient-warning: linear-gradient(135deg, #f59e0b, #d97706);
+        --gradient-danger: linear-gradient(135deg, #ef4444, #dc2626);
+        --gradient-info: linear-gradient(135deg, #06b6d4, #0891b2);
+        --gradient-neutral: linear-gradient(135deg, #6b7280, #4b5563);
+        --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        
+        /* Shadows */
+        --shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-4: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --shadow-5: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        
+        /* Border Radius */
+        --radius-sm: 6px;
+        --radius-md: 8px;
+        --radius-lg: 12px;
+        --radius-xl: 16px;
+        --radius-2xl: 20px;
+        --radius-3xl: 24px;
+        
+        /* Transitions */
+        --t-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        --t-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        --t-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .dark {
+        --bg: #0f172a;
+        --surface: #1e293b;
+        --surface-2: #334155;
+        --surface-3: #475569;
+        --text: #f8fafc;
+        --text-2: #e2e8f0;
+        --muted: #94a3b8;
+        --muted-2: #64748b;
+        --border: #475569;
+        --border-2: #64748b;
+        
+        /* Professional dark mode brand colors */
+        --brand: #000000;
+        --brand-2: #3b82f6;
+        --brand-3: #2563eb;
+        --brand-4: #1d4ed8;
+        --brand-5: #1e40af;
+        
+        /* Dark mode status colors */
+        --success: #10b981;
+        --success-2: #34d399;
+        --success-3: #6ee7b7;
+        --warning: #f59e0b;
+        --warning-2: #fbbf24;
+        --warning-3: #fde68a;
+        --danger: #ef4444;
+        --danger-2: #f87171;
+        --danger-3: #fca5a5;
+        --info: #0ea5e9;
+        --info-2: #38bdf8;
+        --info-3: #7dd3fc;
+    }
+
+    .deal-dashboard {
+        background: linear-gradient(135deg, #0f1419 0%, #1a202c 25%, #2d3748 50%, #1a202c 75%, #0f1419 100%);
+        color: white;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+        overflow-y: auto;
+        height: 100vh;
+    }
+    
+    /* Fix double scrollbar issue */
+    html, body {
+        overflow-x: hidden;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Back button styling */
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        color: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        position: relative;
+        z-index: 1000;
+        pointer-events: auto;
+    }
+    
+    .back-button:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(-2px);
+    }
+    
+    .back-button:active {
+        transform: translateX(0);
+    }
+    
+    /* Ensure the button container is clickable */
+    .back-button-container {
+        position: relative;
+        z-index: 1000;
+        pointer-events: auto;
+    }
+    
+    /* Make sure hero section doesn't interfere */
+    .hero-section {
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Ensure button is above everything */
+    .back-button {
+        position: relative;
+        z-index: 1001 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Debug: Add visible background to button for testing */
+    .back-button {
+        background: rgba(0, 0, 0, 0.3) !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+    }
+    
+    /* Interest tracking buttons */
+    .decision-footer {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-accept, .btn-reject {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 1rem;
+    }
+    
+    .btn-accept {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+    
+    .btn-accept:hover {
+        background: linear-gradient(135deg, #059669, #047857);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    
+    .btn-reject {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+    }
+    
+    .btn-reject:hover {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+    
+    /* Wishlist heart styling */
+    .wishlist-heart {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+    
+    .wishlist-heart:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.1);
+    }
+    
+    .wishlist-heart i {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .wishlist-heart.wishlisted i {
+        color: #ec4899;
+    }
+    
+    .wishlist-heart.wishlisted:hover i {
+        color: #be185d;
+    }
+
+    body.modal-open {
+        overflow: hidden;
+        touch-action: none;
+    }
+    
+    /* Optimize scrolling performance */
+    .deal-dashboard.scrolling {
+        scroll-behavior: auto;
+    }
+    
+    .deal-dashboard.scrolling .professional-chart-card {
+        animation: none !important;
+        transition: none !important;
+        will-change: auto !important;
+    }
+    
+    .deal-dashboard.scrolling .chart-body-pro {
+        will-change: auto !important;
+    }
+    
+    .deal-dashboard.scrolling .chart-body-pro canvas {
+        will-change: auto !important;
+    }
+    
+    .deal-dashboard.scrolling * {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+    }
+    
+    /* Reduce motion for better scrolling */
+    @media (prefers-reduced-motion: reduce) {
+        .professional-chart-card {
+            animation: none;
+            transition: none;
+        }
+        
+        .deal-dashboard {
+            scroll-behavior: auto;
+        }
+    }
+    
+    /* Additional scrolling optimizations */
+    .deal-dashboard {
+        scroll-padding-top: 2rem;
+        scroll-padding-bottom: 2rem;
+    }
+
+    /* Improve touch scrolling on mobile */
+    @media (max-width: 768px) {
+        .deal-dashboard {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .professional-chart-card {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+    }
+
+    .deal-dashboard::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+        animation: backgroundShift 20s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .deal-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-section {
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand-2) 100%);
+        color: white;
+        padding: 3rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .startup-logo {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Investment Decision Cards */
+    .investment-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .investment-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .recommendation-card {
+        background: rgba(16, 185, 129, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        position: relative;
+        box-shadow: 
+            var(--shadow-3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .dark .recommendation-card {
+        background: rgba(16, 185, 129, 0.05);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .recommendation-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-success);
+    }
+
+    .recommendation-card:hover {
+        border-color: rgba(5, 150, 105, 0.4);
+        box-shadow: var(--shadow-4);
+    }
+
+    .card-header {
+        padding: 2rem 2rem 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+    }
+
+    .card-subtitle {
+        color: var(--muted);
+        font-size: 0.875rem;
+        margin: 0.25rem 0 0;
+    }
+
+    .recommendation-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--gradient-success);
+        border-radius: var(--radius-xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.625rem;
+        color: white;
+        box-shadow: var(--shadow-3);
+        transition: all var(--t-normal) ease;
+    }
+
+    .recommendation-icon:hover {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-4);
+    }
+
+    .recommendation-badge {
+        background: var(--gradient-success);
+        padding: 0.625rem 1.25rem;
+        border-radius: 30px;
+        box-shadow: var(--shadow-2);
+        transition: all var(--t-normal) ease;
+    }
+
+    .recommendation-badge:hover {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-3);
+    }
+
+    .badge-text {
+        color: white;
+        font-weight: 700;
+        font-size: 0.875rem;
+        letter-spacing: 0.5px;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .confidence-meter {
+        margin-bottom: 1.5rem;
+    }
+
+    .meter-label {
+        color: var(--muted);
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .meter-container {
+        position: relative;
+        background: rgba(255, 255, 255, 0.1);
+        height: 12px;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .meter-fill {
+        height: 100%;
+        background: var(--gradient-success);
+        border-radius: var(--radius-sm);
+        transition: width 2s ease-out;
+        position: relative;
+    }
+
+    .meter-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    .meter-value {
+        position: absolute;
+        right: 0;
+        top: -25px;
+        color: var(--text);
+        font-weight: 700;
+        font-size: 0.875rem;
+    }
+
+    .recommendation-reason {
+        color: var(--muted);
+        line-height: 1.6;
+        font-size: 0.95rem;
+    }
+
+    /* Stat Cards */
+    .stat-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        space-x: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        background: var(--gradient-primary);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.375rem;
+        color: white;
+        margin-right: 1rem;
+        box-shadow: var(--shadow-2);
+        transition: all var(--t-normal) ease;
+    }
+
+    .stat-icon:hover {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-3);
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        color: var(--muted);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .metric-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gradient-primary);
+    }
+
+    .metric-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .metric-header {
+        display: flex;
+        align-items: center;
+        space-x: 0.5rem;
+        margin-bottom: 1rem;
+        color: var(--muted);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .metric-header i {
+        margin-right: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+    }
+
+    .metric-trend {
+        display: flex;
+        align-items: center;
+        space-x: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .metric-trend.positive {
+        color: var(--success);
+    }
+
+    .metric-trend.warning {
+        color: var(--warning);
+    }
+
+    .metric-trend.neutral {
+        color: var(--muted);
+    }
+
+    .metric-trend i {
+        margin-right: 0.25rem;
+    }
+
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    @keyframes backgroundShift {
+        0%, 100% { transform: translateX(0) translateY(0) scale(1); }
+        25% { transform: translateX(-2%) translateY(-1%) scale(1.02); }
+        50% { transform: translateX(1%) translateY(2%) scale(0.98); }
+        75% { transform: translateX(-1%) translateY(1%) scale(1.01); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+    }
+
+    @keyframes glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+        50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.5); }
+    }
+
+    /* Investment Decision Cards with Glass Morphism */
+    .investment-decision-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 24px;
+        padding: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .dark .investment-decision-card {
+        background: rgba(30, 41, 59, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .investment-decision-card:hover {
+        transform: translateY(-6px) scale(1.01);
+        box-shadow: 
+            0 15px 40px rgba(0, 0, 0, 0.15),
+            0 0 30px rgba(59, 130, 246, 0.2);
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .invest-card {
+        animation: float 5s ease-in-out infinite;
+    }
+
+    .pass-card {
+        animation: float 5s ease-in-out infinite 2.5s;
+    }
+
+    .invest-card {
+        border-color: rgba(16, 185, 129, 0.3);
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(52, 211, 153, 0.05));
+        box-shadow: 
+            0 8px 32px rgba(16, 185, 129, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .invest-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-success);
+    }
+
+    .invest-card:hover {
+        border-color: rgba(16, 185, 129, 0.5);
+        box-shadow: 
+            0 20px 60px rgba(16, 185, 129, 0.2),
+            0 0 40px rgba(16, 185, 129, 0.3);
+    }
+
+    .pass-card {
+        border-color: rgba(239, 68, 68, 0.3);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.05));
+        box-shadow: 
+            0 8px 32px rgba(239, 68, 68, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .pass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-danger);
+    }
+
+    .pass-card:hover {
+        border-color: rgba(239, 68, 68, 0.5);
+        box-shadow: 
+            0 20px 60px rgba(239, 68, 68, 0.2),
+            0 0 40px rgba(239, 68, 68, 0.3);
+    }
+
+    .decision-header {
+        padding: 2rem 2rem 1.5rem;
+        display: flex;
+        align-items: center;
+        space-x: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .decision-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        color: white;
+        margin-right: 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .invest-icon {
+        background: var(--gradient-success);
+    }
+
+    .pass-icon {
+        background: var(--gradient-danger);
+    }
+
+    .decision-title-section {
+        flex: 1;
+    }
+
+    .decision-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .decision-subtitle {
+        color: var(--muted);
+        font-size: 0.875rem;
+        margin: 0.25rem 0 0;
+        font-weight: 500;
+    }
+
+    .decision-body {
+        padding: 2rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .decision-reasons {
+        margin-bottom: 2rem;
+        flex: 1;
+    }
+
+    .reasons-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 1rem;
+    }
+
+    .reasons-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .reasons-list li {
+        display: flex;
+        align-items: center;
+        space-x: 0.75rem;
+        padding: 0.5rem 0;
+        color: var(--muted);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    .reasons-list i {
+        font-size: 1rem;
+        margin-right: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .invest-card .reasons-list i {
+        color: var(--success);
+    }
+
+    .pass-card .reasons-list i {
+        color: var(--danger);
+    }
+
+    .decision-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        padding: 1.5rem;
+        background: var(--surface-2);
+        border-radius: var(--radius-lg);
+    }
+
+    @media (max-width: 640px) {
+        .decision-metrics {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .decision-metrics {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+    }
+
+    .metric-item {
+        text-align: center;
+    }
+
+    .metric-label {
+        display: block;
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .metric-value {
+        display: block;
+        color: var(--text);
+        font-size: 1.125rem;
+        font-weight: 700;
+    }
+
+    .decision-footer {
+        padding: 2rem;
+        border-top: 1px solid var(--border);
+        text-align: center;
+        margin-top: auto;
+    }
+
+    /* Ensure equal height grid items */
+    .grid.grid-cols-1.lg\:grid-cols-2 {
+        align-items: stretch;
+    }
+
+    .btn-invest {
+        background: var(--gradient-success);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: var(--radius-xl);
+        font-size: 1rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        transition: all var(--t-normal) ease;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-3);
+        min-width: 160px;
+        justify-content: center;
+    }
+
+    .btn-invest:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-4);
+    }
+
+    .btn-invest:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-pass {
+        background: var(--gradient-danger);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: var(--radius-xl);
+        font-size: 1rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        cursor: pointer;
+        transition: all var(--t-normal) ease;
+        box-shadow: var(--shadow-3);
+        min-width: 160px;
+        justify-content: center;
+    }
+
+    .btn-pass:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-4);
+    }
+
+    .btn-pass:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-glow {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        animation: glow-sweep 2s infinite;
+    }
+
+    @keyframes glow-sweep {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    /* Action Buttons Grid */
+    .action-buttons-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 1rem;
+    }
+
+    .action-btn {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        border-radius: var(--radius-xl);
+        padding: 0.875rem 1.25rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all var(--t-normal) ease;
+        color: var(--text);
+        white-space: nowrap;
+        min-height: 48px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .action-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .action-btn:hover::before {
+        left: 100%;
+    }
+
+    .action-btn.primary {
+        background: var(--gradient-primary);
+        color: white;
+        border-color: transparent;
+        box-shadow: var(--shadow-3);
+    }
+
+    .action-btn.primary:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-4);
+    }
+
+    .action-btn.secondary {
+        background: var(--surface);
+        border-color: var(--border-2);
+        color: var(--text-2);
+    }
+
+    .action-btn.secondary:hover {
+        background: var(--surface-2);
+        border-color: var(--brand);
+        color: var(--brand);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-2);
+    }
+
+    .action-btn i {
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .action-btn span {
+        font-weight: 600;
+        letter-spacing: 0.025em;
+    }
+
+    /* Professional Investment Modal */
+    .investment-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .investment-modal.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(2, 6, 23, 0.55);
+        backdrop-filter: blur(8px);
+    }
+
+    .modal-container {
+        position: relative;
+        z-index: 1;
+        max-width: 500px;
+        width: 90%;
+        margin: 0 auto;
+        transform: scale(0.9) translateY(20px);
+        transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .investment-modal.show .modal-container {
+        transform: scale(1) translateY(0);
+    }
+
+    .modal-content {
+        background: var(--surface);
+        border-radius: 24px;
+        box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .dark .modal-content {
+        background: var(--surface);
+        box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.5),
+            0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .modal-header {
+        padding: 2rem 2rem 1rem;
+        text-align: center;
+        position: relative;
+        background: linear-gradient(135deg, var(--surface-2), var(--surface));
+    }
+
+    .modal-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: white;
+        margin: 0 auto 1rem;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .success-icon {
+        background: linear-gradient(135deg, #10b981, #34d399);
+    }
+
+    .warning-icon {
+        background: linear-gradient(135deg, #ef4444, #f87171);
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        color: var(--muted);
+        font-size: 1.125rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-close:hover {
+        background: rgba(0, 0, 0, 0.2);
+        color: var(--text);
+        transform: scale(1.1);
+    }
+
+    .modal-body {
+        padding: 0 2rem 2rem;
+        text-align: center;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0 0 1rem;
+    }
+
+    .decision-badge {
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.125rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .invest-badge {
+        background: linear-gradient(135deg, #10b981, #34d399);
+        color: white;
+    }
+
+    .pass-badge {
+        background: linear-gradient(135deg, #ef4444, #f87171);
+        color: white;
+    }
+
+    .modal-description {
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0 0 2rem;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn-close {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 0.875rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-close:hover {
+        background: var(--border);
+        transform: translateY(-2px);
+    }
+
+    .btn-dashboard {
+        background: linear-gradient(135deg, var(--brand), var(--brand-2));
+        border: none;
+        color: white;
+        padding: 0.875rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-dashboard:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    }
+
+    @media (max-width: 480px) {
+        .modal-container {
+            width: 95%;
+        }
+        
+        .modal-header {
+            padding: 1.5rem 1.5rem 1rem;
+        }
+        
+        .modal-body {
+            padding: 0 1.5rem 1.5rem;
+        }
+        
+        .modal-actions {
+            flex-direction: column;
+        }
+        
+        .btn-close,
+        .btn-dashboard {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Fullscreen Chart Modal */
+    .chart-fullscreen-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .chart-fullscreen-modal.show {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .chart-fullscreen-modal .modal-container {
+        position: relative;
+        z-index: 1;
+        max-width: 95vw;
+        max-height: 95vh;
+        width: min(1200px, 95vw);
+        height: min(800px, 95vh);
+        transform: scale(0.9) translateY(20px);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .chart-fullscreen-modal.show .modal-container {
+        transform: scale(1) translateY(0);
+    }
+
+    .chart-fullscreen-modal .modal-content {
+        background: var(--surface);
+        border-radius: 20px;
+        box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.1);
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--border);
+    }
+
+    .chart-fullscreen-modal .modal-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(90deg, rgba(75, 103, 242, 0.08), transparent 60%), var(--surface-2);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 600;
+    }
+
+    .chart-fullscreen-modal .modal-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .chart-fullscreen-modal .modal-close {
+        width: 34px;
+        height: 34px;
+        border: none;
+        background: transparent;
+        border-radius: 10px;
+        color: #64748b;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chart-fullscreen-modal .modal-close:hover {
+        background: rgba(17, 24, 39, 0.06);
+        color: #111827;
+        transform: scale(1.1);
+    }
+
+    .chart-fullscreen-modal .modal-body {
+        padding: 1rem;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        min-height: 0;
+    }
+
+    .chart-fullscreen-modal canvas {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .action-buttons-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            padding: 0 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            min-height: 44px;
+        }
+        
+        .action-btn span {
+            font-size: 0.8rem;
+        }
+        
+        .chart-body-pro {
+            height: 350px;
+            padding: 1rem;
+        }
+        
+        .chart-fullscreen-modal .modal-container {
+            width: 95vw;
+            height: 80vh;
+            max-width: none;
+            max-height: none;
+        }
+        
+        .chart-fullscreen-modal .modal-body {
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .chart-body-pro {
+            height: 300px;
+            padding: 0.75rem;
+        }
+        
+        .chart-fullscreen-modal .modal-container {
+            width: 98vw;
+            height: 75vh;
+        }
+        
+        .chart-fullscreen-modal .modal-header {
+            padding: 1rem;
+        }
+        
+        .chart-fullscreen-modal .modal-body {
+            padding: 0.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .action-buttons-grid {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 0.875rem 1rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    .charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+        will-change: auto;
+        transform: translateZ(0);
+        contain: layout;
+    }
+
+    @media (max-width: 1200px) {
+        .charts-grid {
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+    }
+
+    /* Professional Chart Cards with Glass Morphism */
+    .professional-chart-card {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(18px);
+        border-radius: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        position: relative;
+        will-change: auto;
+        transform: translateZ(0);
+        contain: layout style paint;
+    }
+
+    .dark .professional-chart-card {
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.92), rgba(15, 23, 42, 0.88));
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .professional-chart-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--brand), var(--brand-2), var(--brand-3));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .professional-chart-card:hover {
+        transform: translateY(-8px) scale(1.01);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 0 30px rgba(102, 126, 234, 0.2);
+        animation: glow 1.5s ease-in-out infinite;
+    }
+
+    .professional-chart-card:nth-child(odd) {
+        animation: float 4s ease-in-out infinite;
+    }
+
+    .professional-chart-card:nth-child(even) {
+        animation: float 4s ease-in-out infinite 2s;
+    }
+
+    .professional-chart-card:hover::before {
+        opacity: 1;
+    }
+
+    .chart-header-pro {
+        padding: 2rem 2rem 1.5rem;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.06), rgba(14, 165, 233, 0.05));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .chart-title-section {
+        display: flex;
+        align-items: center;
+        space-x: 1rem;
+    }
+
+    .chart-icon {
+        width: 52px;
+        height: 52px;
+        background: var(--gradient-primary);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.375rem;
+        color: white;
+        margin-right: 1rem;
+        box-shadow: var(--shadow-3);
+        transition: all var(--t-normal) ease;
+    }
+
+    .chart-icon:hover {
+        transform: scale(1.05);
+        box-shadow: var(--shadow-4);
+    }
+
+    .chart-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+        line-height: 1.2;
+    }
+
+    .chart-subtitle {
+        color: var(--muted);
+        font-size: 0.875rem;
+        margin: 0.25rem 0 0;
+        font-weight: 500;
+    }
+
+    .chart-actions {
+        display: flex;
+        space-x: 0.5rem;
+    }
+
+    .chart-action-btn {
+        width: 36px;
+        height: 36px;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--brand);
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-left: 0.5rem;
+    }
+
+    .chart-action-btn:hover {
+        background: var(--brand);
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .chart-body-pro {
+        padding: 1.5rem;
+        height: 450px;
+        position: relative;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.04));
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+        overflow: hidden;
+    }
+
+    .dark .chart-body-pro {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(16, 185, 129, 0.08));
+        border-top: 1px solid rgba(148, 163, 184, 0.15);
+    }
+
+    @media (max-width: 768px) {
+        .chart-body-pro {
+            height: 350px;
+            padding: 1.5rem;
+        }
+        
+        .chart-header-pro {
+            padding: 1.5rem 1.5rem 1rem;
+        }
+        
+        .chart-title-section {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .chart-icon {
+            margin-bottom: 0.5rem;
+            margin-right: 0;
+        }
+    }
+
+    .chart-container {
+        position: relative;
+        height: 100%;
+        width: 100%;
+    }
+
+    .insights-section {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        margin: 2rem 0;
+        box-shadow: var(--shadow-1);
+    }
+
+    .insights-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .insight-card {
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        transition: all var(--t-fast);
+    }
+
+    .insight-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-1);
+    }
+
+    .insight-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .insight-content {
+        color: var(--muted);
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    .score-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .score-excellent {
+        background: rgba(16, 185, 129, 0.1);
+        color: #059669;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .score-good {
+        background: rgba(59, 130, 246, 0.1);
+        color: #2563eb;
+        border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .score-average {
+        background: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .score-poor {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-schedule {
+        background: linear-gradient(135deg, var(--brand), var(--brand-2));
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all var(--t-fast);
+        box-shadow: var(--shadow-1);
+    }
+
+    .btn-schedule:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-2);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: var(--surface-2);
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 0.75rem 2rem;
+        border-radius: var(--radius-md);
+        font-weight: 500;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all var(--t-fast);
+    }
+
+    .btn-secondary:hover {
+        background: var(--border);
+        color: var(--text);
+    }
+
+    /* Old modal styles removed - using new investment modal */
+
+    /* Old modal styles removed - using new investment modal */
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-up {
+        animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    /* Dark theme overrides */
+    .dark .deal-dashboard {
+        background: #0f172a;
+    }
+
+    .dark .kpi-card,
+    .dark .chart-card,
+    .dark .insights-section,
+    .dark .insight-card {
+        background: #1e293b;
+        border-color: #475569;
+    }
+
+    .dark .chart-header {
+        background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent);
+    }
+
+    .dark .modal-content {
+        background: #1e293b;
+        border-color: #475569;
+    }
+
+    .dark .kpi-value {
+        color: #f8fafc !important;
+    }
+
+    .dark .kpi-label {
+        color: #94a3b8 !important;
+    }
+
+    .dark .chart-title {
+        color: #f8fafc !important;
+    }
+
+    .dark .insight-title {
+        color: #f8fafc !important;
+    }
+
+    .dark .insight-content {
+        color: #cbd5e1 !important;
+    }
+
+    .dark .btn-schedule {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    }
+
+    .dark .btn-secondary {
+        background: #334155;
+        border-color: #475569;
+        color: #f8fafc;
+    }
+
+    .dark .btn-secondary:hover {
+        background: #475569;
+        color: #f8fafc;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .charts-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .kpi-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .insights-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .hero-section {
+            padding: 2rem 0;
+        }
+        
+        .chart-body {
+            height: 300px;
+        }
+    }
+
+    /* Chart animations */
+    .chart-container canvas {
+        transition: all 0.3s ease;
+    }
+
+    .chart-container:hover canvas {
+        transform: scale(1.02);
+    }
+
+    /* Progress bars */
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0.5rem 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--brand), var(--brand-2));
+        border-radius: 4px;
+        transition: width 1s ease-out;
+    }
+
+    /* Status indicators */
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-high {
+        background: rgba(16, 185, 129, 0.1);
+        color: #059669;
+        border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-medium {
+        background: rgba(245, 158, 11, 0.1);
+        color: #d97706;
+        border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .status-low {
+        background: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    /* Tooltip styles */
+    .tooltip {
+        position: relative;
+        cursor: help;
+    }
+
+    .tooltip::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s;
+        z-index: 10;
+    }
+
+    .tooltip:hover::after {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="deal-dashboard">
+    <div class="deal-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="mb-6 back-button-container">
+                    <button onclick="goBackToDealInsights()" class="back-button">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Deal Insights
+                    </button>
+                </div>
+                <div class="hero-content text-center">
+                    <div class="startup-logo mx-auto">
+                        {{ startup_report.submission.startupName[0] if startup_report and startup_report.submission and startup_report.submission.startupName else 'S' }}
+                    </div>
+                        <div class="flex items-center justify-center gap-4 mb-4 fade-in">
+                            <h1 class="text-4xl md:text-5xl font-bold">
+                                {{ startup_report.submission.startupName if startup_report and startup_report.submission else 'Unknown Startup' }}
+                            </h1>
+                            <button class="wishlist-heart" onclick="toggleWishlist('{{ startup_id }}')" data-startup-id="{{ startup_id }}">
+                                <i class="fas fa-heart text-2xl transition-colors duration-300"></i>
+                            </button>
+                        </div>
+                        <!-- Debug info -->
+                       
+                    <p class="text-xl text-white/90 mb-6 fade-in">
+                        {{ startup_report.companyProfile.description if startup_report and startup_report.companyProfile else 'No description available' }}
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4 fade-in">
+                        <span class="px-4 py-2 bg-white/20 rounded-full text-sm font-medium">
+                            {{ startup_report.companyProfile.sector if startup_report and startup_report.companyProfile else 'Technology' }}
+                        </span>
+                        <span class="px-4 py-2 bg-white/20 rounded-full text-sm font-medium">
+                            {{ startup_report.companyProfile.companyStage if startup_report and startup_report.companyProfile else 'Early Stage' }}
+                        </span>
+                        <span class="px-4 py-2 bg-white/20 rounded-full text-sm font-medium">
+                            {{ startup_report.companyProfile.teamSize if startup_report and startup_report.companyProfile else '5' }} Team Members
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Investment Decision Section -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold mb-4 fade-in">Investment Analysis</h2>
+                <p class="text-lg text-gray-600 dark:text-gray-300 fade-in">AI-powered insights to guide your investment decision</p>
+            </div>
+
+            <!-- Investment Decision Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <!-- Overall Recommendation -->
+                <div class="lg:col-span-2">
+                    <div class="investment-card recommendation-card">
+                        <div class="card-header">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <div class="recommendation-icon">
+                                        <i class="fas fa-thumbs-up"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="card-title">Investment Recommendation</h3>
+                                        <p class="card-subtitle">Based on AI analysis</p>
+                                    </div>
+                                </div>
+                                <div class="recommendation-badge">
+                                    <span class="badge-text">STRONG BUY</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="recommendation-content">
+                                <div class="confidence-meter">
+                                    <div class="meter-label">Confidence Level</div>
+                                    <div class="meter-container">
+                                        <div class="meter-fill" style="width: {{ startup_report.aiInsights.confidenceScore if startup_report and startup_report.aiInsights else 85 }}%"></div>
+                                        <span class="meter-value">{{ startup_report.aiInsights.confidenceScore if startup_report and startup_report.aiInsights else 85 }}%</span>
+                                    </div>
+                                </div>
+                                <div class="recommendation-reason">
+                                    <p>{{ startup_report.aiInsights.summary if startup_report and startup_report.aiInsights else 'AI analysis summary not available.' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="space-y-4">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">{{ startup_report.scores.OverallScore if startup_report and startup_report.scores else 'N/A' }}/10</div>
+                            <div class="stat-label">Overall Score</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">₹{{ "{:,.0f}".format(startup_report.traction.monthlyRevenueINR) if startup_report and startup_report.traction and startup_report.traction.monthlyRevenueINR else 0 }}</div>
+                            <div class="stat-label">Monthly Revenue</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value">{{ startup_report.traction.activeMerchants if startup_report and startup_report.traction else 0 }}</div>
+                            <div class="stat-label">Active Merchants</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investment Metrics Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <i class="fas fa-trending-up"></i>
+                        <span>Growth Rate</span>
+                    </div>
+                    <div class="metric-value">{{ startup_report.traction.growthMoM if startup_report and startup_report.traction else 0 }}%</div>
+                    <div class="metric-trend positive">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>+{{ startup_report.traction.growthMoM if startup_report and startup_report.traction else 0 }}% MoM</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <i class="fas fa-clock"></i>
+                        <span>Runway</span>
+                    </div>
+                    <div class="metric-value">{{ startup_report.financials.runwayMonths if startup_report and startup_report.financials else 0 }} months</div>
+                    <div class="metric-trend {{ 'positive' if startup_report and startup_report.financials and startup_report.financials.runwayMonths > 12 else 'warning' }}">
+                        <i class="fas fa-{{ 'check' if startup_report and startup_report.financials and startup_report.financials.runwayMonths > 12 else 'exclamation' }}"></i>
+                        <span>{{ 'Healthy' if startup_report and startup_report.financials and startup_report.financials.runwayMonths > 12 else 'Short' }}</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>Funding Ask</span>
+                    </div>
+                    <div class="metric-value">₹{{ "{:,.0f}".format(startup_report.financials.fundingRequiredINR/100000) if startup_report and startup_report.financials and startup_report.financials.fundingRequiredINR else 0 }}L</div>
+                    <div class="metric-trend neutral">
+                        <i class="fas fa-info"></i>
+                        <span>Seed Round</span>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Risk Level</span>
+                    </div>
+                    <div class="metric-value">{{ 'High' if startup_report.scores.RiskAdjustedScore < 7 else 'Medium' if startup_report.scores.RiskAdjustedScore < 8 else 'Low' if startup_report and startup_report.scores else 'Medium' }}</div>
+                    <div class="metric-trend warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Moderate Risk</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Professional Charts Section -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4 fade-in">Deep Dive Analysis</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 fade-in">Comprehensive data visualization for informed decision making</p>
+            </div>
+            
+            <div class="charts-grid">
+                <!-- Performance Radar -->
+                <div class="professional-chart-card slide-up">
+                    <div class="chart-header-pro">
+                        <div class="chart-title-section">
+                            <div class="chart-icon">
+                                <i class="fas fa-radar"></i>
+                            </div>
+                            <div>
+                                <h3 class="chart-title">Performance Radar</h3>
+                                <p class="chart-subtitle">Multi-dimensional scoring</p>
+                            </div>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="chart-action-btn" onclick="exportChart('scoresRadarChart')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="chart-action-btn" onclick="fullscreenChart('scoresRadarChart')">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-body-pro">
+                        <div class="chart-container">
+                            <canvas id="scoresRadarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Revenue Growth -->
+                <div class="professional-chart-card slide-up">
+                    <div class="chart-header-pro">
+                        <div class="chart-title-section">
+                            <div class="chart-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h3 class="chart-title">Revenue Trajectory</h3>
+                                <p class="chart-subtitle">Monthly growth pattern</p>
+                            </div>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="chart-action-btn" onclick="exportChart('revenueChart')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="chart-action-btn" onclick="fullscreenChart('revenueChart')">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-body-pro">
+                        <div class="chart-container">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Analysis -->
+                <div class="professional-chart-card slide-up">
+                    <div class="chart-header-pro">
+                        <div class="chart-title-section">
+                            <div class="chart-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <div>
+                                <h3 class="chart-title">Market Opportunity</h3>
+                                <p class="chart-subtitle">TAM/SAM/SOM breakdown</p>
+                            </div>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="chart-action-btn" onclick="exportChart('marketChart')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="chart-action-btn" onclick="fullscreenChart('marketChart')">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-body-pro">
+                        <div class="chart-container">
+                            <canvas id="marketChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Traction Metrics -->
+                <div class="professional-chart-card slide-up">
+                    <div class="chart-header-pro">
+                        <div class="chart-title-section">
+                            <div class="chart-icon">
+                                <i class="fas fa-tachometer-alt"></i>
+                            </div>
+                            <div>
+                                <h3 class="chart-title">Traction Metrics</h3>
+                                <p class="chart-subtitle">Key performance indicators</p>
+                            </div>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="chart-action-btn" onclick="exportChart('tractionChart')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="chart-action-btn" onclick="fullscreenChart('tractionChart')">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-body-pro">
+                        <div class="chart-container">
+                            <canvas id="tractionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Financial Health -->
+                <div class="professional-chart-card slide-up">
+                    <div class="chart-header-pro">
+                        <div class="chart-title-section">
+                            <div class="chart-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div>
+                                <h3 class="chart-title">Financial Health</h3>
+                                <p class="chart-subtitle">Burn rate & funding metrics</p>
+                            </div>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="chart-action-btn" onclick="exportChart('financialChart')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="chart-action-btn" onclick="fullscreenChart('financialChart')">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-body-pro">
+                        <div class="chart-container">
+                            <canvas id="financialChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Structure -->
+                <div class="professional-chart-card slide-up">
+                    <div class="chart-header-pro">
+                        <div class="chart-title-section">
+                            <div class="chart-icon">
+                                <i class="fas fa-users-cog"></i>
+                            </div>
+                            <div>
+                                <h3 class="chart-title">Team Composition</h3>
+                                <p class="chart-subtitle">Department distribution</p>
+                            </div>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="chart-action-btn" onclick="exportChart('teamChart')">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="chart-action-btn" onclick="fullscreenChart('teamChart')">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-body-pro">
+                        <div class="chart-container">
+                            <canvas id="teamChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Insights Section -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="insights-section fade-in">
+                <h2 class="text-3xl font-bold mb-6 text-center">AI-Generated Insights</h2>
+                
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <div class="insight-title">
+                            <i class="fas fa-brain text-blue-500"></i>
+                            Investment Readiness
+                        </div>
+                        <div class="insight-content">
+                            <div class="flex items-center justify-between mb-2">
+                                <span>{{ startup_report.aiInsights.investmentReadiness if startup_report and startup_report.aiInsights else 'Medium' }}</span>
+                                <span class="score-badge score-excellent">{{ startup_report.aiInsights.investmentReadiness if startup_report and startup_report.aiInsights else 'Medium' }}</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ (startup_report.scores.OverallScore * 10) if startup_report and startup_report.scores else 75 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-title">
+                            <i class="fas fa-shield-alt text-green-500"></i>
+                            Risk Assessment
+                        </div>
+                        <div class="insight-content">
+                            <div class="mb-2">
+                                <strong>Confidence Score:</strong> {{ startup_report.aiInsights.confidenceScore }}%
+                            </div>
+                            <div class="text-sm">
+                                <strong>Key Risks:</strong>
+                                <ul class="mt-1 list-disc list-inside">
+                                    {% if startup_report and startup_report.aiInsights and startup_report.aiInsights.flaggedRisks %}
+                                        {% for risk in startup_report.aiInsights.flaggedRisks %}
+                                            <li>{{ risk }}</li>
+                                        {% endfor %}
+                                    {% else %}
+                                        <li>No risks identified</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-title">
+                            <i class="fas fa-lightbulb text-yellow-500"></i>
+                            Key Differentiators
+                        </div>
+                        <div class="insight-content">
+                            <ul class="list-disc list-inside">
+                                {% if startup_report and startup_report.aiInsights and startup_report.aiInsights.keyDifferentiators %}
+                                    {% for diff in startup_report.aiInsights.keyDifferentiators %}
+                                        <li>{{ diff }}</li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li>No differentiators identified</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-title">
+                            <i class="fas fa-chart-pie text-purple-500"></i>
+                            Market Position
+                        </div>
+                        <div class="insight-content">
+                            <div class="mb-2">
+                                <strong>Positioning:</strong> {{ startup_report.competitorLandscape.positioningMatrix.xAxis }} vs {{ startup_report.competitorLandscape.positioningMatrix.yAxis }}
+                            </div>
+                            <div class="text-sm">
+                                <strong>Coordinates:</strong> X: {{ startup_report.competitorLandscape.positioningMatrix.coordinates.HyperPay.x if startup_report and startup_report.competitorLandscape and startup_report.competitorLandscape.positioningMatrix and startup_report.competitorLandscape.positioningMatrix.coordinates and startup_report.competitorLandscape.positioningMatrix.coordinates.HyperPay else 'N/A' }}, Y: {{ startup_report.competitorLandscape.positioningMatrix.coordinates.HyperPay.y if startup_report and startup_report.competitorLandscape and startup_report.competitorLandscape.positioningMatrix and startup_report.competitorLandscape.positioningMatrix.coordinates and startup_report.competitorLandscape.positioningMatrix.coordinates.HyperPay else 'N/A' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-title">
+                            <i class="fas fa-trophy text-orange-500"></i>
+                            Founder Quality
+                        </div>
+                        <div class="insight-content">
+                            <div class="mb-2">
+                                <strong>Founder-Market Fit:</strong> {{ startup_report.scores.FounderMarketFit }}/10
+                            </div>
+                            <div class="text-sm">
+                                <strong>Team Size:</strong> {{ startup_report.teamStructure.totalEmployees }} members
+                                <br>
+                                <strong>Advisors:</strong> {{ startup_report.teamStructure.advisors|length if startup_report and startup_report.teamStructure and startup_report.teamStructure.advisors else 0 }} advisors
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-title">
+                            <i class="fas fa-route text-indigo-500"></i>
+                            Next Steps
+                        </div>
+                        <div class="insight-content">
+                            <div class="mb-2">
+                                <strong>Recommended Action:</strong>
+                            </div>
+                            <div class="text-sm">
+                                {{ startup_report.aiInsights.recommendedNextStep }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Investment Decision Section -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4 fade-in">Make Your Investment Decision</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 fade-in">Based on comprehensive analysis and AI insights</p>
+            </div>
+
+            <!-- Investment Decision Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                <!-- Invest Card -->
+                <div class="investment-decision-card invest-card">
+                    <div class="decision-header">
+                        <div class="decision-icon invest-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <div class="decision-title-section">
+                            <h3 class="decision-title">Accept {{ startup_report.submission.startupName if startup_report and startup_report.submission else 'This Startup' }}</h3>
+                            <p class="decision-subtitle">{{ startup_report.aiInsights.recommendedNextStep if startup_report and startup_report.aiInsights else 'Strong recommendation based on analysis' }}</p>
+                        </div>
+                    </div>
+                    <div class="decision-body">
+                        <div class="decision-reasons">
+                            <h4 class="reasons-title">Why Invest:</h4>
+                            <ul class="reasons-list">
+                                <li><i class="fas fa-check-circle"></i> High growth potential ({{ startup_report.traction.growthMoM }}% MoM)</li>
+                                <li><i class="fas fa-check-circle"></i> Strong founder-market fit ({{ startup_report.scores.FounderMarketFit }}/10)</li>
+                                <li><i class="fas fa-check-circle"></i> Proven traction with {{ startup_report.traction.activeMerchants }}+ merchants</li>
+                                <li><i class="fas fa-check-circle"></i> {{ startup_report.aiInsights.keyDifferentiators[0] if startup_report and startup_report.aiInsights and startup_report.aiInsights.keyDifferentiators else 'AI-driven competitive advantage' }}</li>
+                                <li><i class="fas fa-check-circle"></i> Large market opportunity (${{ "{:.1f}".format(startup_report.market.TAMUSD/1000000000) }}B TAM)</li>
+                            </ul>
+                        </div>
+                        <div class="decision-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Expected Return:</span>
+                                <span class="metric-value">{{ '2-3x' if startup_report.scores.OverallScore < 7 else '3-5x' if startup_report.scores.OverallScore < 8.5 else '5-10x' if startup_report and startup_report.scores else '3-5x' }}</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Risk Level:</span>
+                                <span class="metric-value">{{ 'High' if startup_report.scores.RiskAdjustedScore < 7 else 'Medium' if startup_report.scores.RiskAdjustedScore < 8 else 'Low' if startup_report and startup_report.scores else 'Medium' }}</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Timeline:</span>
+                                <span class="metric-value">{{ '2-3 years' if startup_report.scores.OverallScore > 8.5 else '3-5 years' if startup_report and startup_report.scores else '3-5 years' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="decision-footer">
+                        <button class="btn-accept" onclick="handleAccept('{{ startup_id }}')">
+                            <i class="fas fa-check"></i>
+                            <span>Accept</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pass Card -->
+                <div class="investment-decision-card pass-card">
+                    <div class="decision-header">
+                        <div class="decision-icon pass-icon">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="decision-title-section">
+                            <h3 class="decision-title">Reject {{ startup_report.submission.startupName if startup_report and startup_report.submission else 'This Investment' }}</h3>
+                            <p class="decision-subtitle">{{ 'High risk factors identified' if startup_report and startup_report.scores and startup_report.scores.RiskAdjustedScore < 7 else 'Not aligned with investment thesis' }}</p>
+                        </div>
+                    </div>
+                    <div class="decision-body">
+                        <div class="decision-reasons">
+                            <h4 class="reasons-title">Considerations:</h4>
+                            <ul class="reasons-list">
+                                <li><i class="fas fa-exclamation-triangle"></i> Short runway ({{ startup_report.financials.runwayMonths }} months)</li>
+                                {% if startup_report and startup_report.aiInsights and startup_report.aiInsights.flaggedRisks %}
+                                    {% for risk in startup_report.aiInsights.flaggedRisks[:4] %}
+                                        <li><i class="fas fa-exclamation-triangle"></i> {{ risk }}</li>
+                                    {% endfor %}
+                                {% else %}
+                                    <li><i class="fas fa-exclamation-triangle"></i> High competition in fintech</li>
+                                    <li><i class="fas fa-exclamation-triangle"></i> Regulatory compliance risks</li>
+                                    <li><i class="fas fa-exclamation-triangle"></i> Limited international expansion</li>
+                                    <li><i class="fas fa-exclamation-triangle"></i> High burn rate vs revenue</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="decision-metrics">
+                            <div class="metric-item">
+                                <span class="metric-label">Risk Assessment:</span>
+                                <span class="metric-value">{{ 'High' if startup_report.scores.RiskAdjustedScore < 7 else 'Medium' if startup_report.scores.RiskAdjustedScore < 8 else 'Low' if startup_report and startup_report.scores else 'Medium' }}</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Market Saturation:</span>
+                                <span class="metric-value">{{ 'High' if startup_report.scores.MarketPotential < 7 else 'Medium' if startup_report.scores.MarketPotential < 8 else 'Low' if startup_report and startup_report.scores else 'Medium' }}</span>
+                            </div>
+                            <div class="metric-item">
+                                <span class="metric-label">Competition:</span>
+                                <span class="metric-value">{{ 'Intense' if startup_report.scores.ProductDifferentiation < 7 else 'Moderate' if startup_report.scores.ProductDifferentiation < 8 else 'Low' if startup_report and startup_report.scores else 'Moderate' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="decision-footer">
+                        <button class="btn-reject" onclick="handleReject('{{ startup_id }}')">
+                            <i class="fas fa-times"></i>
+                            <span>Reject</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Actions -->
+            <div class="text-center">
+                <div class="action-buttons-grid">
+                    <button class="action-btn primary" onclick="scheduleMeeting()">
+                        <i class="fas fa-calendar-plus"></i>
+                        <span>Schedule Meeting</span>
+                    </button>
+                    <button class="action-btn secondary" onclick="downloadReport()">
+                        <i class="fas fa-download"></i>
+                        <span>Download Report</span>
+                    </button>
+                    <button class="action-btn secondary" onclick="shareDeal()">
+                        <i class="fas fa-share"></i>
+                        <span>Share Deal</span>
+                    </button>
+                    <button class="action-btn secondary" onclick="addToWatchlist()">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Add to Watchlist</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Back button function
+    function goBackToDealInsights() {
+        console.log('Back button clicked - navigating to deal insights');
+        
+        // Add visual feedback
+        const button = document.querySelector('.back-button');
+        if (button) {
+            button.style.background = 'rgba(0, 255, 0, 0.3)';
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.background = '';
+                button.style.transform = '';
+            }, 200);
+        }
+        
+        // Always go to deal insights page to ensure proper navigation
+        setTimeout(() => {
+            window.location.href = '/investor/deal-insights';
+        }, 100);
+    }
+    
+    // Ensure the function is available globally
+    window.goBackToDealInsights = goBackToDealInsights;
+    
+    // Interest tracking functions
+    function handleAccept(startupId) {
+        updateInvestorInterest(startupId, 'interested');
+    }
+    
+    function handleReject(startupId) {
+        updateInvestorInterest(startupId, 'not_interested');
+    }
+    
+    // Wishlist functions
+    function toggleWishlist(startupId) {
+        const heartButton = document.querySelector(`[data-startup-id="${startupId}"]`);
+        const isWishlisted = heartButton.classList.contains('wishlisted');
+        
+        // Toggle visual state immediately
+        if (isWishlisted) {
+            heartButton.classList.remove('wishlisted');
+        } else {
+            heartButton.classList.add('wishlisted');
+        }
+        
+        // Save to database
+        saveWishlistStatus(startupId, !isWishlisted);
+    }
+    
+    async function saveWishlistStatus(startupId, isWishlisted) {
+        try {
+            const response = await fetch(`/investor/api/wishlist/${startupId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ wishlisted: isWishlisted })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                const message = isWishlisted ? 'Added to wishlist!' : 'Removed from wishlist!';
+                showToast(message, 'success');
+            } else {
+                // Revert visual state on error
+                const heartButton = document.querySelector(`[data-startup-id="${startupId}"]`);
+                if (isWishlisted) {
+                    heartButton.classList.remove('wishlisted');
+                } else {
+                    heartButton.classList.add('wishlisted');
+                }
+                showToast('Failed to update wishlist', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating wishlist:', error);
+            // Revert visual state on error
+            const heartButton = document.querySelector(`[data-startup-id="${startupId}"]`);
+            if (isWishlisted) {
+                heartButton.classList.remove('wishlisted');
+            } else {
+                heartButton.classList.add('wishlisted');
+            }
+            showToast('Network error', 'error');
+        }
+    }
+    
+    // Enhanced update investor interest with better UX
+    async function updateInvestorInterest(startupId, interestLevel) {
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        
+        // Set loading state
+        setButtonLoading(button, true, originalText);
+        
+        try {
+            const response = await fetch(`/investor/api/startup-interest/${startupId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ interest_level: interestLevel })
+            });
+            
+            const data = await response.json();
+            if (data.success) {
+                // Show success message with enhanced feedback
+                const actionText = interestLevel === 'interested' ? 'Startup accepted!' : 'Startup rejected';
+                showToast(`${actionText}`, 'success');
+                
+                // Update dashboard count
+                if (interestLevel === 'interested') {
+                    updateDashboardCount('accepted', 1);
+                } else if (interestLevel === 'not_interested') {
+                    updateDashboardCount('rejected', 1);
+                }
+                
+                // Add visual feedback to the button
+                button.style.transform = 'scale(0.95)';
+                button.style.opacity = '0.7';
+                
+                // Reset button after a short delay
+                setTimeout(() => {
+                    button.style.transform = '';
+                    button.style.opacity = '';
+                    setButtonLoading(button, false, originalText);
+                }, 1000);
+                
+            } else {
+                console.error('Failed to update interest:', data.message);
+                showToast('Failed to update interest. Please try again.', 'error');
+                setButtonLoading(button, false, originalText);
+            }
+        } catch (error) {
+            console.error('Error updating interest:', error);
+            showToast('Network error. Please try again.', 'error');
+            setButtonLoading(button, false, originalText);
+        }
+    }
+    
+    // Set button loading state
+    function setButtonLoading(button, isLoading, originalText) {
+        if (isLoading) {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        } else {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    }
+    
+    // Show toast notification
+    function showToast(message, type = 'info') {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        // Add toast styles
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Animate in
+        setTimeout(() => {
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+    
+    // Update dashboard count function
+    function updateDashboardCount(type, increment) {
+        // This function would ideally update the dashboard count in real-time
+        // For now, we'll just show a notification that the count has been updated
+        console.log(`Dashboard ${type} count updated by ${increment}`);
+    }
+    
+    // Add event listener as fallback
+    document.addEventListener('DOMContentLoaded', function() {
+        const backButton = document.querySelector('.back-button');
+        if (backButton) {
+            // Remove any existing event listeners
+            backButton.onclick = null;
+            
+            // Add multiple event listeners for maximum compatibility
+            backButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Back button clicked via event listener');
+                goBackToDealInsights();
+                return false;
+            });
+            
+            backButton.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Back button mousedown');
+                goBackToDealInsights();
+                return false;
+            });
+            
+            // Also add touch events for mobile
+            backButton.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Back button touchend');
+                goBackToDealInsights();
+                return false;
+            });
+        }
+        
+        // Initialize wishlist heart state
+        initializeWishlistHeart();
+    });
+    
+    // Initialize wishlist heart state
+    async function initializeWishlistHeart() {
+        const heartButton = document.querySelector('.wishlist-heart');
+        if (heartButton) {
+            const startupId = heartButton.getAttribute('data-startup-id');
+            try {
+                // Check current wishlist status
+                const response = await fetch(`/investor/api/wishlist/${startupId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.wishlisted) {
+                        heartButton.classList.add('wishlisted');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking wishlist status:', error);
+            }
+        }
+    }
+
+    // Safe data access helper
+    function safeGet(obj, path, defaultValue = null) {
+        return path.split('.').reduce((current, key) => {
+            return current && current[key] !== undefined ? current[key] : defaultValue;
+        }, obj);
+    }
+
+    // Startup data from template
+    const startupData = {{ startup_report | tojson if startup_report else '{}' }};
+
+    // Chart.js configuration
+    function getColors() {
+        const isDark = document.body.classList.contains('dark') ||
+            window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        return {
+            primary: isDark ? '#60a5fa' : '#2563eb',
+            secondary: isDark ? '#34d399' : '#059669',
+            tertiary: isDark ? '#a78bfa' : '#7c3aed',
+            quaternary: isDark ? '#22d3ee' : '#0284c7',
+            success: isDark ? '#34d399' : '#059669',
+            warning: isDark ? '#fbbf24' : '#d97706',
+            danger: isDark ? '#f87171' : '#dc2626',
+            info: isDark ? '#22d3ee' : '#0284c7',
+            text: isDark ? '#f8fafc' : '#1e293b',
+            textSecondary: isDark ? '#e2e8f0' : '#334155',
+            muted: isDark ? '#cbd5f5' : '#475569',
+            background: isDark ? '#1e293b' : '#ffffff',
+            surface: isDark ? '#334155' : '#f8fafc',
+            border: isDark ? '#475569' : '#cbd5e1',
+            chart1: isDark ? '#60a5fa' : '#3b82f6',
+            chart2: isDark ? '#34d399' : '#10b981',
+            chart3: isDark ? '#22d3ee' : '#06b6d4',
+            chart4: isDark ? '#fbbf24' : '#f59e0b',
+            chart5: isDark ? '#f87171' : '#ef4444',
+            chart6: isDark ? '#a78bfa' : '#8b5cf6',
+            chart7: isDark ? '#6b7280' : '#6b7280',
+            chart8: isDark ? '#fde68a' : '#fde68a'
+        };
+    }
+
+    function applyChartDefaults() {
+        const colors = getColors();
+
+        Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+        Chart.defaults.color = colors.muted;
+        Chart.defaults.plugins.legend.position = 'bottom';
+        Chart.defaults.plugins.legend.labels.color = colors.muted;
+        Chart.defaults.plugins.tooltip.backgroundColor = withAlpha(colors.background, 0.96);
+        Chart.defaults.plugins.tooltip.titleColor = colors.text;
+        Chart.defaults.plugins.tooltip.bodyColor = colors.text;
+        Chart.defaults.plugins.tooltip.borderColor = withAlpha(colors.border, 0.6);
+        Chart.defaults.plugins.tooltip.borderWidth = 1;
+        Chart.defaults.animation.duration = 800;
+        Chart.defaults.animation.easing = 'easeOutQuart';
+        Chart.defaults.responsive = true;
+        Chart.defaults.maintainAspectRatio = false;
+
+        Chart.defaults.scales = Chart.defaults.scales || {};
+
+        Chart.defaults.scales.linear = Chart.defaults.scales.linear || {};
+        Chart.defaults.scales.linear.ticks = {
+            ...Chart.defaults.scales.linear.ticks,
+            color: colors.muted
+        };
+        Chart.defaults.scales.linear.grid = {
+            ...Chart.defaults.scales.linear.grid,
+            color: withAlpha(colors.border, 0.45)
+        };
+
+        Chart.defaults.scales.category = Chart.defaults.scales.category || {};
+        Chart.defaults.scales.category.ticks = {
+            ...Chart.defaults.scales.category.ticks,
+            color: colors.muted
+        };
+        Chart.defaults.scales.category.grid = {
+            ...Chart.defaults.scales.category.grid,
+            color: withAlpha(colors.border, 0.45)
+        };
+
+        Chart.defaults.scales.radial = Chart.defaults.scales.radial || {};
+        Chart.defaults.scales.radial.ticks = {
+            ...Chart.defaults.scales.radial.ticks,
+            color: colors.muted
+        };
+        Chart.defaults.scales.radial.pointLabels = {
+            ...Chart.defaults.scales.radial.pointLabels,
+            color: colors.text
+        };
+        Chart.defaults.scales.radial.grid = {
+            ...Chart.defaults.scales.radial.grid,
+            color: withAlpha(colors.border, 0.45)
+        };
+        Chart.defaults.scales.radial.angleLines = {
+            ...Chart.defaults.scales.radial.angleLines,
+            color: withAlpha(colors.border, 0.45)
+        };
+
+        Chart.defaults.elements.line = {
+            ...Chart.defaults.elements.line,
+            borderWidth: 2,
+            tension: 0.4
+        };
+        Chart.defaults.elements.point = {
+            ...Chart.defaults.elements.point,
+            radius: 4,
+            hoverRadius: 6
+        };
+        Chart.defaults.elements.bar = {
+            ...Chart.defaults.elements.bar,
+            borderWidth: 1,
+            borderColor: withAlpha(colors.border, 0.4)
+        };
+        Chart.defaults.elements.arc = {
+            ...Chart.defaults.elements.arc,
+            borderWidth: 1,
+            borderColor: withAlpha(colors.border, 0.4)
+        };
+    }
+
+    applyChartDefaults();
+
+    let activeModalLocks = 0;
+
+    function lockBodyScroll() {
+        if (activeModalLocks === 0) {
+            const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+            if (scrollBarWidth > 0) {
+                document.body.style.paddingRight = `${scrollBarWidth}px`;
+            }
+            document.body.classList.add('modal-open');
+        }
+        activeModalLocks += 1;
+    }
+
+    function unlockBodyScroll(force = false) {
+        if (force) {
+            activeModalLocks = 0;
+        } else {
+            activeModalLocks = Math.max(0, activeModalLocks - 1);
+        }
+
+        if (activeModalLocks === 0) {
+            document.body.classList.remove('modal-open');
+            document.body.style.paddingRight = '';
+        }
+    }
+
+    // Enhanced chart color schemes
+    const chartColors = {
+        gradient: {
+            primary: (ctx) => {
+                const colors = getColors();
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, colors.chart1 + '80');
+                gradient.addColorStop(0.3, colors.chart1 + '50');
+                gradient.addColorStop(0.7, colors.chart1 + '30');
+                gradient.addColorStop(1, colors.chart1 + '10');
+                return gradient;
+            },
+            secondary: (ctx) => {
+                const colors = getColors();
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, colors.chart2 + '80');
+                gradient.addColorStop(0.3, colors.chart2 + '50');
+                gradient.addColorStop(0.7, colors.chart2 + '30');
+                gradient.addColorStop(1, colors.chart2 + '10');
+                return gradient;
+            },
+            tertiary: (ctx) => {
+                const colors = getColors();
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, colors.chart3 + '80');
+                gradient.addColorStop(0.3, colors.chart3 + '50');
+                gradient.addColorStop(0.7, colors.chart3 + '30');
+                gradient.addColorStop(1, colors.chart3 + '10');
+                return gradient;
+            },
+            quaternary: (ctx) => {
+                const colors = getColors();
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, colors.chart4 + '80');
+                gradient.addColorStop(0.3, colors.chart4 + '50');
+                gradient.addColorStop(0.7, colors.chart4 + '30');
+                gradient.addColorStop(1, colors.chart4 + '10');
+                return gradient;
+            },
+            success: (ctx) => {
+                const colors = getColors();
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, colors.success + '80');
+                gradient.addColorStop(0.3, colors.success + '50');
+                gradient.addColorStop(0.7, colors.success + '30');
+                gradient.addColorStop(1, colors.success + '10');
+                return gradient;
+            },
+            warning: (ctx) => {
+                const colors = getColors();
+                const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                gradient.addColorStop(0, colors.warning + '80');
+                gradient.addColorStop(0.3, colors.warning + '50');
+                gradient.addColorStop(0.7, colors.warning + '30');
+                gradient.addColorStop(1, colors.warning + '10');
+                return gradient;
+            }
+        },
+        solid: {
+            primary: () => getColors().chart1,
+            secondary: () => getColors().chart2,
+            tertiary: () => getColors().chart3,
+            quaternary: () => getColors().chart4,
+            success: () => getColors().success,
+            warning: () => getColors().warning,
+            danger: () => getColors().danger,
+            info: () => getColors().info,
+            chart1: () => getColors().chart1,
+            chart2: () => getColors().chart2,
+            chart3: () => getColors().chart3,
+            chart4: () => getColors().chart4,
+            chart5: () => getColors().chart5,
+            chart6: () => getColors().chart6
+        }
+    };
+
+    // Debug: Log the startup data
+    console.log('Startup data loaded:', startupData);
+    console.log('Startup name:', startupData?.submission?.startupName);
+    console.log('Overall score:', startupData?.scores?.OverallScore);
+    
+    const CHART_IDS = ['scoresRadarChart', 'revenueChart', 'marketChart', 'tractionChart', 'financialChart', 'teamChart'];
+    const chartRegistry = {};
+
+    // Initialize all charts
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCharts();
+        animateElements();
+        
+        // Listen for theme changes
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function() {
+                setTimeout(() => {
+                    // Reinitialize charts with new colors
+                    initializeCharts();
+                }, 100);
+            });
+        }
+        
+        // Optimize scrolling performance
+        let scrollTimeout;
+        const dashboard = document.querySelector('.deal-dashboard');
+        
+        function handleScroll() {
+            if (dashboard) {
+                dashboard.classList.add('scrolling');
+                
+                clearTimeout(scrollTimeout);
+                scrollTimeout = setTimeout(() => {
+                    dashboard.classList.remove('scrolling');
+                }, 150);
+            }
+        }
+        
+        // Throttled scroll event
+        let ticking = false;
+        function requestTick() {
+            if (!ticking) {
+                requestAnimationFrame(handleScroll);
+                ticking = true;
+            }
+        }
+        
+        function onScroll() {
+            ticking = false;
+            requestTick();
+        }
+        
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('touchmove', onScroll, { passive: true });
+    });
+
+    function withAlpha(hex, alpha) {
+        if (!hex) {
+            return `rgba(0, 0, 0, ${alpha})`;
+        }
+        const cleaned = hex.replace('#', '');
+        const normalized = cleaned.length === 3
+            ? cleaned.split('').map(char => char + char).join('')
+            : cleaned.padEnd(6, '0');
+        const r = parseInt(normalized.substring(0, 2), 16);
+        const g = parseInt(normalized.substring(2, 4), 16);
+        const b = parseInt(normalized.substring(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function getChartFactory(chartId) {
+        const factories = {
+            scoresRadarChart: createScoresRadarChart,
+            revenueChart: createRevenueChart,
+            marketChart: createMarketChart,
+            tractionChart: createTractionChart,
+            financialChart: createFinancialChart,
+            teamChart: createTeamChart
+        };
+        return factories[chartId];
+    }
+
+    function initializeCharts() {
+        applyChartDefaults();
+        CHART_IDS.forEach(id => {
+            const existing = Chart.getChart(id);
+            if (existing) {
+                existing.destroy();
+            }
+            if (chartRegistry[id]) {
+                chartRegistry[id].destroy();
+                delete chartRegistry[id];
+            }
+
+            const factory = getChartFactory(id);
+            if (factory) {
+                chartRegistry[id] = factory();
+            }
+        });
+    }
+
+    function createScoresRadarChart(ctxOverride, settings = {}) {
+        const ctx = ctxOverride || document.getElementById('scoresRadarChart').getContext('2d');
+        const colors = getColors();
+        const isFullscreen = !!settings.isFullscreen;
+        const labelColor = '#ffffff';
+        const tickColor = '#ffffff';
+        const gridColor = 'rgba(255, 255, 255, 0.2)';
+        const angleColor = 'rgba(255, 255, 255, 0.25)';
+        const datasetColor = colors.primary;
+        const fillColor = withAlpha(colors.primary, 0.18);
+        const config = {
+            type: 'radar',
+            data: {
+                labels: [
+                    'Founder Fit',
+                    'Product Diff',
+                    'Go-to-Market',
+                    'Customer Exp',
+                    'Traction',
+                    'Financial Health',
+                    'Team Quality',
+                    'Market Potential'
+                ],
+                datasets: [{
+                    label: startupData.submission.startupName || 'Startup Scores',
+                    data: [
+                        startupData.scores.FounderMarketFit,
+                        startupData.scores.ProductDifferentiation,
+                        startupData.scores.GoToMarketStrategy,
+                        startupData.scores.CXScore,
+                        startupData.scores.Traction,
+                        startupData.scores.FinancialHealth,
+                        startupData.scores.TeamQuality,
+                        startupData.scores.MarketPotential
+                    ],
+                    backgroundColor: fillColor,
+                    borderColor: datasetColor,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: colors.background,
+                    pointBorderColor: datasetColor,
+                    pointBorderWidth: 2,
+                    pointRadius: isFullscreen ? 7 : 5,
+                    pointHoverBackgroundColor: datasetColor,
+                    pointHoverBorderColor: colors.background,
+                    pointHoverRadius: isFullscreen ? 9 : 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: 20
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        min: 0,
+                        max: 10,
+                        ticks: {
+                            display: false,
+                            color: tickColor,
+                            backdropColor: 'transparent'
+                        },
+                        grid: {
+                            color: gridColor,
+                            circular: true,
+                            lineWidth: 1.2
+                        },
+                        angleLines: {
+                            color: angleColor,
+                            lineWidth: 1
+                        },
+                        pointLabels: {
+                            color: labelColor,
+                            font: {
+                                size: isFullscreen ? 16 : 13,
+                                weight: '600'
+                            },
+                            padding: 10
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        };
+
+        return new Chart(ctx, config);
+    }
+
+    function createRevenueChart(ctxOverride, settings = {}) {
+        const ctx = ctxOverride || document.getElementById('revenueChart').getContext('2d');
+        const colors = getColors();
+        const isFullscreen = !!settings.isFullscreen;
+        const axisColor = '#ffffff';
+        const gridColor = 'rgba(255, 255, 255, 0.2)';
+        const borderColor = colors.primary;
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const baseRevenue = startupData.traction.monthlyRevenueINR;
+        const growthRate = startupData.traction.growthMoM / 100;
+
+        const revenueData = months.map((month, index) => baseRevenue * Math.pow(1 + growthRate, index - 6));
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+        gradient.addColorStop(0, withAlpha(colors.primary, 0.28));
+        gradient.addColorStop(1, withAlpha(colors.primary, 0.04));
+
+        const config = {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [{
+                    label: 'Monthly Revenue (₹)',
+                    data: revenueData,
+                    borderColor: borderColor,
+                    backgroundColor: gradient,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.35,
+                    pointBackgroundColor: colors.background,
+                    pointBorderColor: borderColor,
+                    pointBorderWidth: 2,
+                    pointRadius: isFullscreen ? 7 : 5,
+                    pointHoverRadius: isFullscreen ? 9 : 7,
+                    pointHoverBackgroundColor: borderColor,
+                    pointHoverBorderColor: colors.background
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: axisColor,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: axisColor,
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return '₹' + (value / 1000).toFixed(0) + 'K';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        };
+
+        return new Chart(ctx, config);
+    }
+
+    function createMarketChart(ctxOverride, settings = {}) {
+        const ctx = ctxOverride || document.getElementById('marketChart').getContext('2d');
+        const colors = getColors();
+        const isFullscreen = !!settings.isFullscreen;
+        const axisColor = '#ffffff';
+        const gridColor = 'rgba(255, 255, 255, 0.2)';
+        const config = {
+            type: 'bar',
+            data: {
+                labels: ['TAM', 'SAM', 'SOM'],
+                datasets: [{
+                    label: 'Market Size (Billions)',
+                    data: [
+                        startupData.market.TAMUSD / 1000000000,
+                        startupData.market.SAMUSD / 1000000000,
+                        startupData.market.SOMUSD / 1000000000
+                    ],
+                    backgroundColor: [
+                        withAlpha(colors.chart1, 0.85),
+                        withAlpha(colors.chart2, 0.85),
+                        withAlpha(colors.chart3, 0.85)
+                    ],
+                    borderColor: [
+                        colors.chart1,
+                        colors.chart2,
+                        colors.chart3
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 14,
+                    borderSkipped: false,
+                    barPercentage: 0.58,
+                    categoryPercentage: 0.6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 900,
+                    easing: 'easeOutQuart'
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: withAlpha(colors.chart1, 0.4),
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': $' + context.parsed.toFixed(1) + 'B';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: axisColor,
+                            font: {
+                                size: 12,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: axisColor,
+                            font: {
+                                size: 11,
+                                weight: '500'
+                            },
+                            callback: function(value) {
+                                return '$' + value.toFixed(0) + 'B';
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        return new Chart(ctx, config);
+    }
+
+    function createTractionChart(ctxOverride, settings = {}) {
+        const ctx = ctxOverride || document.getElementById('tractionChart').getContext('2d');
+        const colors = getColors();
+        const isFullscreen = !!settings.isFullscreen;
+        const axisColor = '#ffffff';
+        const gridColor = 'rgba(255, 255, 255, 0.2)';
+
+        const config = {
+            type: 'bar',
+            data: {
+                labels: ['Active Merchants', 'Retention (30d)', 'Retention (90d)', 'NPS Score', 'Support Score'],
+                datasets: [{
+                    label: 'Metrics',
+                    data: [
+                        startupData.traction.activeMerchants,
+                        startupData.traction.retentionRate30Day,
+                        startupData.traction.retentionRate90Day,
+                        startupData.traction.onboardingNPS,
+                        startupData.traction.supportSatisfactionScore
+                    ],
+                    backgroundColor: [
+                        withAlpha(colors.primary, 0.85),
+                        withAlpha(colors.success, 0.85),
+                        withAlpha(colors.success, 0.75),
+                        withAlpha(colors.warning, 0.83),
+                        withAlpha(colors.info, 0.83)
+                    ],
+                    borderColor: [
+                        colors.primary,
+                        colors.success,
+                        colors.success,
+                        colors.warning,
+                        colors.info
+                    ],
+                    borderWidth: 1.5,
+                    borderRadius: 12,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: axisColor,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: axisColor,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: colors.background,
+                        titleColor: colors.text,
+                        bodyColor: colors.text,
+                        borderColor: colors.border,
+                        borderWidth: 1
+                    }
+                }
+            }
+        };
+
+        return new Chart(ctx, config);
+    }
+
+    function createFinancialChart(ctxOverride, settings = {}) {
+        const ctx = ctxOverride || document.getElementById('financialChart').getContext('2d');
+        const colors = getColors();
+        const isFullscreen = !!settings.isFullscreen;
+        const axisColor = '#ffffff';
+        const gridColor = 'rgba(255, 255, 255, 0.2)';
+
+        const config = {
+            type: 'bar',
+            data: {
+                labels: ['Monthly Burn', 'Revenue', 'Runway (months)', 'Funding Required'],
+                datasets: [{
+                    label: 'Financial Metrics',
+                    data: [
+                        startupData.financials.monthlyBurnINR / 100000,
+                        startupData.traction.monthlyRevenueINR / 100000,
+                        startupData.financials.runwayMonths,
+                        startupData.financials.fundingRequiredINR / 100000
+                    ],
+                    backgroundColor: [
+                        withAlpha(colors.danger, 0.82),
+                        withAlpha(colors.success, 0.85),
+                        withAlpha(colors.warning, 0.8),
+                        withAlpha(colors.info, 0.83)
+                    ],
+                    borderColor: [
+                        colors.danger,
+                        colors.success,
+                        colors.warning,
+                        colors.info
+                    ],
+                    borderWidth: 1.5,
+                    borderRadius: 12,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: axisColor,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: gridColor,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            color: axisColor,
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value, index) {
+                                if (index === 2) return value + ' months';
+                                return '₹' + value + 'L';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: colors.background,
+                        titleColor: colors.text,
+                        bodyColor: colors.text,
+                        borderColor: colors.border,
+                        borderWidth: 1
+                    }
+                }
+            }
+        };
+
+        return new Chart(ctx, config);
+    }
+
+    function createTeamChart(ctxOverride, settings = {}) {
+        const ctx = ctxOverride || document.getElementById('teamChart').getContext('2d');
+        const colors = getColors();
+        const isFullscreen = !!settings.isFullscreen;
+        const legendColor = '#ffffff';
+
+        const departments = Object.keys(startupData.teamStructure.departments);
+        const departmentSizes = Object.values(startupData.teamStructure.departments);
+
+        const config = {
+            type: 'pie',
+            data: {
+                labels: departments,
+                datasets: [{
+                    data: departmentSizes,
+                    backgroundColor: [
+                        withAlpha(colors.primary, 0.9),
+                        withAlpha(colors.secondary, 0.9),
+                        withAlpha(colors.tertiary, 0.9),
+                        withAlpha(colors.success, 0.85),
+                        withAlpha(colors.warning, 0.85),
+                        withAlpha(colors.danger, 0.85)
+                    ],
+                    borderColor: colors.background,
+                    borderWidth: 3,
+                    hoverBorderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: legendColor,
+                            font: {
+                                size: 13,
+                                weight: '500'
+                            },
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: colors.background,
+                        titleColor: colors.text,
+                        bodyColor: colors.text,
+                        borderColor: colors.border,
+                        borderWidth: 1,
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                                const percentage = total ? ((value / total) * 100).toFixed(1) : 0;
+                                return `${label}: ${value} team members (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        return new Chart(ctx, config);
+    }
+
+    function animateElements() {
+        // Animate progress bars
+        document.querySelectorAll('.progress-fill').forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 500);
+        });
+    }
+
+    // Investment Decision Functions
+    function makeInvestment() {
+        const btn = event.target.closest('.btn-invest');
+        const originalContent = btn.innerHTML;
+        
+        btn.innerHTML = '<div class="loading-spinner"></div> Processing Investment...';
+        btn.disabled = true;
+        
+        // Show confirmation modal
+        setTimeout(() => {
+            showInvestmentModal('invest');
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        }, 2000);
+    }
+
+    function passInvestment() {
+        const btn = event.target.closest('.btn-pass');
+        const originalContent = btn.innerHTML;
+        
+        btn.innerHTML = '<div class="loading-spinner"></div> Recording Decision...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            showInvestmentModal('pass');
+            btn.innerHTML = originalContent;
+            btn.disabled = false;
+        }, 1500);
+    }
+
+    function showInvestmentModal(decision) {
+        const existingModal = document.querySelector('.investment-modal');
+        if (existingModal) {
+            if (typeof existingModal.closeModal === 'function') {
+                existingModal.closeModal({ immediate: true });
+            } else {
+                existingModal.remove();
+                unlockBodyScroll(true);
+            }
+        }
+
+        const modal = document.createElement('div');
+        modal.className = 'investment-modal';
+        modal.innerHTML = `
+            <div class="modal-backdrop" data-close-modal></div>
+            <div class="modal-container">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="modal-icon ${decision === 'invest' ? 'success-icon' : 'warning-icon'}">
+                            <i class="fas fa-${decision === 'invest' ? 'check-circle' : 'times-circle'}"></i>
+                        </div>
+                        <button class="modal-close" data-close-modal>
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <h2 class="modal-title">Investment Decision Recorded</h2>
+                        <div class="decision-badge ${decision === 'invest' ? 'invest-badge' : 'pass-badge'}">
+                            ${decision === 'invest' ? 'INVEST' : 'PASS'}
+                        </div>
+                        <p class="modal-description">
+                            Your investment decision has been successfully recorded and will be shared with the startup team for further processing.
+                        </p>
+                        <div class="modal-actions">
+                            <button class="btn-close" data-close-modal>
+                                <i class="fas fa-times"></i>
+                                Close
+                            </button>
+                            <button class="btn-dashboard" onclick="window.location.href='/investor/dashboard'">
+                                <i class="fas fa-chart-line"></i>
+                                View Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        lockBodyScroll();
+
+        const keyHandler = (event) => {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        };
+
+        let isClosing = false;
+
+        function closeModal(options = {}) {
+            if (isClosing) {
+                return;
+            }
+            isClosing = true;
+
+            const removeModal = () => {
+                modal.remove();
+                document.removeEventListener('keydown', keyHandler);
+                unlockBodyScroll();
+            };
+
+            if (options.immediate) {
+                removeModal();
+                return;
+            }
+
+            modal.classList.remove('show');
+            setTimeout(removeModal, 180);
+        }
+
+        modal.closeModal = closeModal;
+
+        document.addEventListener('keydown', keyHandler);
+
+        modal.querySelectorAll('[data-close-modal]').forEach(element => {
+            element.addEventListener('click', () => closeModal());
+        });
+
+        // Add entrance animation
+        setTimeout(() => {
+            modal.classList.add('show');
+        }, 10);
+    }
+
+    // Chart Action Functions
+    function exportChart(chartId) {
+        const canvas = document.getElementById(chartId);
+        const chart = Chart.getChart(chartId);
+        
+        if (chart) {
+            const url = chart.toBase64Image('image/png', 1.0);
+            const link = document.createElement('a');
+            link.download = `${chartId}-chart.png`;
+            link.href = url;
+            link.click();
+        }
+    }
+
+    function fullscreenChart(chartId) {
+        const chart = Chart.getChart(chartId);
+        if (!chart) {
+            return;
+        }
+
+        const existingModal = document.querySelector('.chart-fullscreen-modal');
+        if (existingModal) {
+            if (typeof existingModal.closeModal === 'function') {
+                existingModal.closeModal({ immediate: true });
+            } else {
+                existingModal.remove();
+                unlockBodyScroll(true);
+            }
+        }
+
+        const modal = document.createElement('div');
+        modal.className = 'chart-fullscreen-modal';
+        modal.innerHTML = `
+            <div class="modal-backdrop" data-close-modal></div>
+            <div class="modal-container">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">${chartId.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim()}</h3>
+                        <button class="modal-close" data-close-modal>
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <canvas id="fullscreenChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        lockBodyScroll();
+
+        let fullscreenInstance = null;
+        let isClosing = false;
+
+        const keyHandler = (event) => {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        };
+
+        function closeModal(options = {}) {
+            if (isClosing) {
+                return;
+            }
+            isClosing = true;
+
+            if (fullscreenInstance) {
+                fullscreenInstance.destroy();
+                fullscreenInstance = null;
+            }
+
+            const removeModal = () => {
+                modal.remove();
+                document.removeEventListener('keydown', keyHandler);
+                unlockBodyScroll();
+            };
+
+            if (options.immediate) {
+                removeModal();
+                return;
+            }
+
+            modal.classList.remove('show');
+            setTimeout(removeModal, 180);
+        }
+
+        modal.closeModal = closeModal;
+
+        document.addEventListener('keydown', keyHandler);
+
+        setTimeout(() => {
+            if (!modal.isConnected) {
+                return;
+            }
+            modal.classList.add('show');
+        }, 10);
+
+        setTimeout(() => {
+            if (!modal.isConnected) {
+                return;
+            }
+            const canvas = document.getElementById('fullscreenChart');
+            if (!canvas) {
+                return;
+            }
+            const ctx = canvas.getContext('2d');
+            const factory = getChartFactory(chartId);
+            if (factory) {
+                // Force white labels for fullscreen
+                const originalGetColors = getColors;
+                window.getColors = function() {
+                    const colors = originalGetColors();
+                    return {
+                        ...colors,
+                        text: '#ffffff',
+                        muted: '#ffffff',
+                        border: 'rgba(255, 255, 255, 0.2)',
+                        background: 'rgba(0, 0, 0, 0.8)'
+                    };
+                };
+                
+                fullscreenInstance = factory(ctx, { isFullscreen: true });
+                
+                // Restore original function
+                window.getColors = originalGetColors;
+            }
+        }, 120);
+
+        modal.querySelectorAll('[data-close-modal]').forEach(element => {
+            element.addEventListener('click', () => {
+                closeModal();
+            });
+        });
+    }
+
+    function addToWatchlist() {
+        const btn = event.target.closest('.action-btn');
+        const originalContent = btn.innerHTML;
+        
+        btn.innerHTML = '<div class="loading-spinner"></div> Adding...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i> Added to Watchlist!';
+            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 2000);
+        }, 1500);
+    }
+
+    // Action functions
+    function scheduleMeeting() {
+        const btn = event.target.closest('.action-btn');
+        const originalContent = btn.innerHTML;
+        
+        btn.innerHTML = '<div class="loading-spinner"></div> Scheduling...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i> Meeting Scheduled!';
+            btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 2000);
+        }, 1500);
+    }
+
+    function downloadReport() {
+        const btn = event.target.closest('.action-btn');
+        const originalContent = btn.innerHTML;
+        
+        btn.innerHTML = '<div class="loading-spinner"></div> Downloading...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i> Downloaded!';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 2000);
+        }, 1500);
+    }
+
+    function shareDeal() {
+        const btn = event.target.closest('.action-btn');
+        const originalContent = btn.innerHTML;
+        
+        btn.innerHTML = '<div class="loading-spinner"></div> Sharing...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-check"></i> Shared!';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 2000);
+        }, 1500);
+    }
+
+    // Add smooth scrolling for better UX
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

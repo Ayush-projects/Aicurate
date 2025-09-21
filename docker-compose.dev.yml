@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - SECRET_KEY=dev-secret-key
+      - FIREBASE_API_KEY=${FIREBASE_API_KEY}
+      - FIREBASE_AUTH_DOMAIN=${FIREBASE_AUTH_DOMAIN}
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - FIREBASE_STORAGE_BUCKET=${FIREBASE_STORAGE_BUCKET}
+      - FIREBASE_MESSAGING_SENDER_ID=${FIREBASE_MESSAGING_SENDER_ID}
+      - FIREBASE_APP_ID=${FIREBASE_APP_ID}
+      - ADMIN_EMAILS=admin@example.com
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+    restart: unless-stopped
+    command: ["python", "app.py"]

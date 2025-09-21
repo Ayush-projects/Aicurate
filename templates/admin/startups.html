@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Startups - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto py-12 px-4 space-y-8">
+    <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Startups</h1>
+            <p class="text-gray-400">Oversee the pipeline of founder submissions.</p>
+        </div>
+        <div class="rounded-full border border-primary-500/30 bg-primary-500/10 px-4 py-1 text-sm text-primary-200">
+            Total funding goal: ${{ total_goal | round(2) }}
+        </div>
+    </header>
+
+    {% if not firestore_enabled %}
+        <p class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+            Firestore is not connected. Sync the Admin SDK credentials to view live startup data.
+        </p>
+    {% endif %}
+
+    {% if not startups %}
+        <div class="rounded-2xl border border-dark-700 bg-dark-800 p-8 text-center text-gray-400">
+            <p class="text-lg text-white">No startups found</p>
+            <p class="mt-2">Encourage founders to submit their decks or seed the collection manually.</p>
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-dark-700 bg-dark-800">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-dark-700 text-sm text-gray-200">
+                    <thead>
+                        <tr class="text-left uppercase tracking-wide text-xs text-gray-500">
+                            <th class="py-3 pr-6">Name</th>
+                            <th class="py-3 pr-6">Founder</th>
+                            <th class="py-3 pr-6">Industry</th>
+                            <th class="py-3 pr-6">Funding Goal</th>
+                            <th class="py-3 pr-6">Status</th>
+                            <th class="py-3 pr-6">Created</th>
+                            <th class="py-3">Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dark-700">
+                        {% for startup in startups %}
+                        <tr class="hover:bg-dark-700/40">
+                            <td class="py-3 pr-6 font-semibold text-white">{{ startup.name or 'Unnamed startup' }}</td>
+                            <td class="py-3 pr-6">{{ startup.founder_email or 'Unknown' }}</td>
+                            <td class="py-3 pr-6">{{ startup.industry or '—' }}</td>
+                            <td class="py-3 pr-6">${{ startup.funding_goal | default(0) | round(2) }}</td>
+                            <td class="py-3 pr-6">
+                                <span class="rounded-full border px-3 py-1 text-xs uppercase tracking-wide {% if startup.status == 'active' %}border-green-500/40 bg-green-500/10 text-green-200{% elif startup.status == 'paused' %}border-amber-500/40 bg-amber-500/10 text-amber-200{% else %}border-gray-500/40 bg-gray-500/10 text-gray-200{% endif %}">
+                                    {{ startup.status | default('pending') }}
+                                </span>
+                            </td>
+                            <td class="py-3 pr-6">{{ startup.created_at_display or '—' }}</td>
+                            <td class="py-3">{{ startup.updated_at_display or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

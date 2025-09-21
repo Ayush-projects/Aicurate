@@ -1,0 +1,451 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<!-- Animated Background Elements -->
+<div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-20 left-10 w-40 h-40 gradient-primary rounded-full blur-3xl float opacity-20"></div>
+    <div class="absolute top-40 right-20 w-32 h-32 gradient-success rounded-full blur-3xl float-delayed opacity-15"></div>
+    <div class="absolute bottom-40 left-20 w-36 h-36 gradient-warning rounded-full blur-3xl float opacity-10" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-20 right-10 w-28 h-28 gradient-danger rounded-full blur-3xl float-delayed opacity-25"></div>
+</div>
+
+<div class="max-w-6xl mx-auto py-12 px-4 space-y-12 relative z-10">
+    <!-- Header Section -->
+    <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10 text-center">
+        <div class="flex items-center justify-center space-x-4 mb-6">
+            <div class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center shadow-lg">
+                <i class="fas fa-question-circle text-white text-2xl"></i>
+            </div>
+            <div>
+                <h1 class="text-4xl font-bold text-white text-shadow">Frequently Asked Questions</h1>
+                <p class="text-gray-300 text-lg">Everything you need to know about our AI Investment Platform</p>
+            </div>
+        </div>
+        <div class="flex justify-center">
+            <a href="{{ url_for('founder.dashboard') }}" class="btn-secondary">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </section>
+
+    <!-- Search Bar -->
+    <section class="glass-effect rounded-2xl p-6 backdrop-blur-xl border border-white/10">
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-400"></i>
+            </div>
+            <input type="text" id="faqSearch" placeholder="Search FAQs..." 
+                   class="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+        </div>
+    </section>
+
+    <!-- FAQ Categories -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Getting Started -->
+        <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
+                    <i class="fas fa-rocket text-white text-lg"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white text-shadow">Getting Started</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="faq-item" data-category="getting-started">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">How do I submit my startup for evaluation?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Click the "New Submission" button on your dashboard to start the process. You'll need to provide basic information about your startup, upload relevant documents (pitch deck, financial model, etc.), and optionally record a video pitch. Our AI will then analyze your submission and provide comprehensive insights.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="getting-started">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">What documents should I prepare before submitting?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">We recommend preparing: a pitch deck (PDF/PPT), financial model (Excel), product demo video, and any relevant legal documents. While not all are required, having these materials will help our AI provide more comprehensive analysis and better match you with suitable investors.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="getting-started">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">How long does the evaluation process take?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">The initial AI analysis typically takes 5-10 minutes after submission. However, the complete evaluation including investor matching may take 24-48 hours. You'll receive email notifications at each stage of the process.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="getting-started">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">Can I edit my submission after submitting?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">You can add additional files to your submission at any time, but core information changes require creating a new submission. This ensures data integrity and proper tracking of your startup's evolution.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Analysis -->
+        <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 gradient-success rounded-xl flex items-center justify-center">
+                    <i class="fas fa-brain text-white text-lg"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white text-shadow">AI Analysis</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="faq-item" data-category="ai-analysis">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">What does the AI analyze in my startup?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Our AI analyzes multiple aspects: market opportunity, business model viability, financial projections, team strength, competitive positioning, technology innovation, and growth potential. It also evaluates your pitch quality and presentation effectiveness.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="ai-analysis">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">How accurate is the AI evaluation?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Our AI is trained on thousands of successful and unsuccessful startups, achieving 85%+ accuracy in predicting funding success. However, it's designed to complement, not replace, human judgment. The analysis provides data-driven insights to help you make informed decisions.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="ai-analysis">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">What scoring metrics are used?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">We use a comprehensive scoring system including: Market Score (0-100), Business Model Score (0-100), Financial Viability Score (0-100), Team Score (0-100), Innovation Score (0-100), and an overall Investment Readiness Score (0-100). Each score comes with detailed explanations and improvement suggestions.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="ai-analysis">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">Can I get a detailed breakdown of my scores?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Yes! Once your analysis is complete, you'll receive a comprehensive report with detailed breakdowns of each score, specific areas for improvement, market comparisons, and actionable recommendations to strengthen your startup.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Investor Matching -->
+        <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 gradient-warning rounded-xl flex items-center justify-center">
+                    <i class="fas fa-handshake text-white text-lg"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white text-shadow">Investor Matching</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="faq-item" data-category="investor-matching">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">How does investor matching work?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Our AI matches you with investors based on sector preferences, investment stage, funding amount, geographic focus, and past investment patterns. We consider both your startup's profile and the investor's criteria to create optimal matches.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="investor-matching">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">What information do investors see about my startup?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Investors see your startup summary, key metrics, AI analysis scores, and your pitch materials. Sensitive financial details are only shared with investors who express serious interest and sign confidentiality agreements.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="investor-matching">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">How do I know if an investor is interested?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">You'll receive notifications when investors view your profile, request more information, or want to schedule a meeting. The platform tracks all interactions and provides you with insights into investor engagement levels.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="investor-matching">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">Can I reach out to investors directly?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Yes! Once matched, you can send messages directly through our platform. We also facilitate introduction requests and meeting scheduling to streamline the communication process.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Platform Features -->
+        <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 gradient-danger rounded-xl flex items-center justify-center">
+                    <i class="fas fa-cogs text-white text-lg"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white text-shadow">Platform Features</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="faq-item" data-category="platform-features">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">What file formats are supported for uploads?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">We support: PDF, PPT, PPTX for pitch decks; XLSX, XLS, CSV for financial models; MP4, AVI, MOV for videos; MP3, WAV, M4A for audio; and DOCX, DOC, PDF for documents. Maximum file sizes vary by type (50MB for presentations, 500MB for videos).</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="platform-features">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">Can I record a video pitch directly on the platform?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Yes! Our platform includes a built-in video recording feature that allows you to record your pitch directly in your browser. The recording is automatically saved and attached to your submission.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="platform-features">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">How do I track my submission progress?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Your dashboard shows real-time status updates for each submission. You can see processing stages, analysis progress, and investor engagement metrics. Email notifications are sent for important milestones.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="platform-features">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">Is my data secure on the platform?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Absolutely. We use enterprise-grade encryption, secure cloud storage, and strict access controls. Your data is only shared with matched investors who have signed confidentiality agreements. We're SOC 2 compliant and follow industry best practices.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing & Plans -->
+        <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
+                    <i class="fas fa-dollar-sign text-white text-lg"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white text-shadow">Pricing & Plans</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="faq-item" data-category="pricing">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">Is there a cost to use the platform?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Basic submission and AI analysis are free for founders. Premium features like advanced analytics, priority investor matching, and dedicated support are available through our paid plans. We only charge a success fee when you successfully raise funding through our platform.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="pricing">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">What's included in the free plan?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">The free plan includes: 3 startup submissions per month, basic AI analysis, standard investor matching, email support, and access to our knowledge base. This is perfect for early-stage founders getting started.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="pricing">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">How does the success fee work?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">We charge a 2% success fee only when you successfully raise funding through investors matched on our platform. This fee is only applied to the amount raised through our platform, not your total funding round.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="pricing">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">Can I upgrade or downgrade my plan anytime?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Yes! You can change your plan at any time. Upgrades take effect immediately, while downgrades take effect at the next billing cycle. No long-term contracts required.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Support & Contact -->
+        <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 gradient-success rounded-xl flex items-center justify-center">
+                    <i class="fas fa-headset text-white text-lg"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-white text-shadow">Support & Contact</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="faq-item" data-category="support">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">How can I get help if I'm stuck?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">We offer multiple support channels: email support (support@aiinvestment.com), live chat during business hours, comprehensive documentation, and video tutorials. Premium users get priority support and dedicated account managers.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="support">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">What are your support hours?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Email support is available 24/7 with responses within 24 hours. Live chat is available Monday-Friday, 9 AM - 6 PM EST. Premium users get extended support hours and faster response times.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="support">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">Can I schedule a demo or consultation?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Absolutely! We offer personalized demos and consultations to help you get the most out of our platform. Schedule a session through your dashboard or contact us directly. These sessions are free for all users.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="support">
+                    <button class="faq-question w-full text-left p-4 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 flex items-center justify-between">
+                        <span class="text-white font-medium">Do you offer training or workshops?</span>
+                        <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+                    </button>
+                    <div class="faq-answer hidden mt-2 p-4 bg-white/5 rounded-xl border border-white/10">
+                        <p class="text-gray-300 leading-relaxed">Yes! We regularly host webinars, workshops, and training sessions on topics like pitch deck creation, financial modeling, investor relations, and fundraising strategies. Check our events calendar for upcoming sessions.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+  
+   
+</div>
+
+<script>
+// FAQ functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // FAQ accordion functionality
+    const faqQuestions = document.querySelectorAll('.faq-question');
+    
+    faqQuestions.forEach(question => {
+        question.addEventListener('click', function() {
+            const answer = this.nextElementSibling;
+            const icon = this.querySelector('i');
+            const isOpen = !answer.classList.contains('hidden');
+            
+            // Close all other FAQs
+            faqQuestions.forEach(otherQuestion => {
+                if (otherQuestion !== this) {
+                    const otherAnswer = otherQuestion.nextElementSibling;
+                    const otherIcon = otherQuestion.querySelector('i');
+                    otherAnswer.classList.add('hidden');
+                    otherIcon.style.transform = 'rotate(0deg)';
+                }
+            });
+            
+            // Toggle current FAQ
+            if (isOpen) {
+                answer.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                answer.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            }
+        });
+    });
+    
+    // Search functionality
+    const searchInput = document.getElementById('faqSearch');
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question span').textContent.toLowerCase();
+            const answer = item.querySelector('.faq-answer p').textContent.toLowerCase();
+            const category = item.dataset.category;
+            
+            if (question.includes(searchTerm) || answer.includes(searchTerm) || category.includes(searchTerm)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Live chat function
+function openLiveChat() {
+    // This would integrate with your live chat system
+    alert('Live chat feature coming soon! Please email us at support@aiinvestment.com for immediate assistance.');
+}
+</script>
+
+<style>
+.faq-question:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.faq-answer {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Search highlight */
+#faqSearch:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden flex items-center justify-center{% endblock %}
+
+{% block content %}
+<!-- Animated Background Elements -->
+<div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-20 left-10 w-40 h-40 gradient-primary rounded-full blur-3xl float opacity-20"></div>
+    <div class="absolute top-40 right-20 w-32 h-32 gradient-success rounded-full blur-3xl float-delayed opacity-15"></div>
+    <div class="absolute bottom-40 left-20 w-36 h-36 gradient-warning rounded-full blur-3xl float opacity-10" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-20 right-10 w-28 h-28 gradient-danger rounded-full blur-3xl float-delayed opacity-25"></div>
+</div>
+
+<div class="max-w-lg w-full mx-4 relative z-10">
+    <div class="glass-effect rounded-3xl p-10 text-center space-y-6 backdrop-blur-xl border border-white/10">
+        <div class="mx-auto h-20 w-20 gradient-warning rounded-full flex items-center justify-center pulse-glow">
+            <i class="fas fa-tools text-white text-3xl"></i>
+        </div>
+        <h1 class="text-4xl font-bold text-white text-shadow">500 · Something went wrong</h1>
+        <p class="text-gray-300 text-lg">We hit an unexpected issue while processing your request. Please try again shortly.</p>
+        <a href="{{ url_for('home') }}" class="btn-primary px-8 py-4 text-lg font-semibold inline-flex items-center">
+            <i class="fas fa-home mr-2"></i>Back to homepage
+        </a>
+    </div>
+</div>
+{% endblock %}

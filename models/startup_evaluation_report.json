@@ -1,0 +1,220 @@
+{
+  "startupId": "strp_002",
+  "submission": {
+    "submittedBy": "devendra@kredily.com",
+    "submittedAt": "2025-09-21T10:15:00Z",
+    "startupName": "Kredily",
+    "location": {
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India"
+    },
+    "foundingDate": "2017-10-01",
+    "founderIds": ["user_devendra_khandegar"],
+    "uploadedAssets": []
+  },
+
+  "companyProfile": {
+    "description": "Kredily is a free HRMS and payroll software for Indian SMEs, offering employee management, attendance tracking, statutory compliance, and a financial products marketplace.",
+    "tagline": "India’s only free HR and payroll software",
+    "sector": "HR Tech",
+    "subsectors": ["HRMS", "Payroll", "Embedded Benefits"],
+    "businessModel": "Freemium SaaS with embedded finance",
+    "companyStage": "Growth",
+    "teamSize": 60,
+    "legalEntity": "PeopleProsper Technologies Pvt Ltd",
+    "corporateStructure": "Privately held, incorporated under MCA India",
+    "ipAssets": ["Trademark filed - 'Kredily'"]
+  },
+
+  "founderProfiles": [
+    {
+      "id": "user_devendra_khandegar",
+      "name": "Devendra Khandegar",
+      "linkedIn": "https://linkedin.com/in/devendra-khandegar",
+      "email": "devendra@kredily.com",
+      "education": "IIT Kanpur, IIM Lucknow",
+      "experience": [
+        {
+          "company": "Axis Bank",
+          "role": "AVP - Corporate Finance",
+          "durationYears": 3
+        },
+        {
+          "company": "Tracxn Labs",
+          "role": "VP - Investments",
+          "durationYears": 2
+        }
+      ],
+      "commitmentLevel": {
+        "fullTime": true,
+        "equityHoldingPercent": 60,
+        "personalCapitalInvestedINR": 1500000
+      },
+      "founderMarketFitScore": 8.4
+    }
+  ],
+
+  "teamStructure": {
+    "totalEmployees": 60,
+    "departments": {
+      "Engineering": 20,
+      "Product": 8,
+      "Growth": 10,
+      "Compliance": 5,
+      "Support": 10,
+      "CX": 7
+    },
+    "advisors": [
+      {
+        "name": "Sandeep Jakhotia",
+        "expertise": "HR Tech",
+        "affiliation": "Ex-Keka, Advisor"
+      }
+    ]
+  },
+
+  "product": {
+    "platformAvailability": ["Web"],
+    "apiDocsUrl": "https://docs.kredily.com",
+    "aiFeatures": ["Leave pattern detection", "Payroll anomaly flagging"],
+    "goToMarketChannels": ["SEO", "Referral", "SME networks", "Partnerships with accountants"],
+    "demoStatus": "Live",
+    "productMaturity": "Full-stack HRMS with freemium model",
+    "roadmapHighlights": [
+      "Launch API integrations for PF/ESIC in Q4 2025",
+      "Expand financial benefits marketplace by H1 2026"
+    ]
+  },
+
+  "traction": {
+    "activeMerchants": 18500,
+    "monthlyGMVINR": null,
+    "monthlyRevenueINR": 1400000,
+    "growthMoM": 8.5,
+    "CACINR": 450,
+    "LTVINR": 7200,
+    "retentionRate30Day": 88,
+    "retentionRate90Day": 80,
+    "churnRate": 3.2,
+    "avgIntegrationTimeDays": 3,
+    "activationRatePercent": 76,
+    "supportSatisfactionScore": 89,
+    "onboardingNPS": 65,
+    "monthlySupportTickets": 120,
+    "integrationSuccessRate": 94.5
+  },
+
+  "market": {
+    "TAMUSD": 6000000000,
+    "SAMUSD": 1000000000,
+    "SOMUSD": 200000000,
+    "keyRegions": ["India", "Bangladesh", "Nepal"],
+    "marketGrowthRateYoY": 25,
+    "macros": {
+      "SME HR digitization": "40%",
+      "Payroll software adoption (India)": "30%",
+      "Statutory Compliance Push": "High post-2024 labour codes"
+    },
+    "emergingTrends": ["HR-fintech convergence", "Embedded insurance", "Real-time payroll"]
+  },
+
+  "competitorLandscape": {
+    "primaryCompetitors": [
+      {
+        "name": "Keka",
+        "tagline": "India’s #1 HR software",
+        "strengths": ["Depth of features", "Customer support"],
+        "weaknesses": ["Price-sensitive for SMEs"],
+        "fundingUSD": 57000000,
+        "valuationUSD": 250000000
+      },
+      {
+        "name": "Zoho People",
+        "tagline": "Online HR software for growing businesses",
+        "strengths": ["Integration with Zoho suite"],
+        "weaknesses": ["Complex UI for small teams"],
+        "fundingUSD": null,
+        "valuationUSD": null
+      }
+    ],
+    "positioningMatrix": {
+      "xAxis": "Affordability",
+      "yAxis": "HR Feature Depth",
+      "coordinates": {
+        "Kredily": { "x": 9.5, "y": 7.2 },
+        "Keka": { "x": 6.5, "y": 9.0 },
+        "Zoho People": { "x": 5.8, "y": 8.5 }
+      }
+    }
+  },
+
+  "financials": {
+    "monthlyBurnINR": 1200000,
+    "revenueToBurnRatio": 1.16,
+    "runwayMonths": 9,
+    "fundingRequiredINR": 25000000,
+    "valuationINR": 110000000,
+    "plannedUseOfFunds": {
+      "Engineering": 35,
+      "Marketing": 25,
+      "Partnerships": 15,
+      "Compliance & Legal": 10,
+      "Other": 15
+    },
+    "existingInvestors": [
+      {
+        "name": "Fosun RZ Capital",
+        "type": "VC"
+      },
+      {
+        "name": "JITO Angel Network",
+        "type": "Angel Network"
+      }
+    ]
+  },
+
+  "aiInsights": {
+    "summary": "Kredily leverages a strong freemium model to attract SME HR clients and monetizes via embedded financial services. Product-led growth combined with growing compliance needs position it well, though competition from paid HRMS tools remains intense.",
+    "autoGeneratedDealMemo": true,
+    "confidenceScore": 80.2,
+    "keyDifferentiators": ["Free forever core plan", "Built-in compliance tools", "SME-first UX"],
+    "flaggedRisks": ["High churn potential", "Freemium model requires upsell efficiency"],
+    "investmentReadiness": "Moderate-High",
+    "recommendedNextStep": "Evaluate premium conversion funnel performance"
+  },
+
+  "scores": {
+    "FounderMarketFit": 8.4,
+    "ProductDifferentiation": 7.9,
+    "GoToMarketStrategy": 7.5,
+    "CXScore": 8.2,
+    "Traction": 7.8,
+    "FinancialHealth": 6.9,
+    "TeamQuality": 7.5,
+    "MarketPotential": 8.8,
+    "RiskAdjustedScore": 7.2,
+    "OverallScore": 7.9
+  },
+
+  "agentPipeline": [
+    {
+      "agentName": "public-data-enhancer",
+      "status": "completed",
+      "enrichedFields": ["founderProfile", "competitorLandscape", "traction"]
+    },
+    {
+      "agentName": "deal-note-generator",
+      "status": "completed",
+      "confidenceScore": 80.2
+    }
+  ],
+
+  "timestamps": {
+    "submittedAt": "2025-09-21T10:15:00Z",
+    "processedAt": "2025-09-21T12:30:00Z",
+    "lastUpdated": "2025-09-21T12:45:00Z"
+  },
+
+  "version": "1.1"
+}

@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block title %}Aicurate - AI-Powered Investment Platform{% endblock %}
+
+{% block main_class %}min-h-screen flex flex-col relative{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden py-20 sm:py-24">
+    <!-- Enhanced Background -->
+    <div class="absolute inset-0 morphing-bg"></div>
+    
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+            <!-- Left Side - Content -->
+            <div class="text-left lg:text-left">
+                <!-- Main Heading -->
+                <div class="animate-fade-in">
+                    <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold font-display mb-6 text-white">
+                        <span class="gradient-text" id="typewriter-text">Aicurate</span><br>
+                        <span class="text-white">AI Investment Platform</span>
+                    </h1>
+                    <p class="text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 leading-relaxed">
+                        Connect innovative startups with smart investors through our AI-driven platform. 
+                        Get personalized recommendations, track investments, and discover the next unicorn.
+                    </p>
+                    
+                    <!-- Stats -->
+                    <div class="flex flex-wrap gap-6 md:gap-8 mb-8">
+                        <div class="text-center glass-card rounded-xl p-4 min-w-[120px]">
+                            <div class="text-2xl md:text-3xl font-bold text-blue-400 mb-1" data-target="500" data-prefix="" data-suffix="+" data-duration="2000">500+</div>
+                            <div class="text-sm text-gray-400">Startups</div>
+                        </div>
+                        <div class="text-center glass-card rounded-xl p-4 min-w-[120px]">
+                            <div class="text-2xl md:text-3xl font-bold text-green-400 mb-1" data-target="50" data-prefix="$" data-suffix="M+" data-duration="2000">$50M+</div>
+                            <div class="text-sm text-gray-400">Raised</div>
+                        </div>
+                        <div class="text-center glass-card rounded-xl p-4 min-w-[120px]">
+                            <div class="text-2xl md:text-3xl font-bold text-purple-400 mb-1" data-target="95" data-prefix="" data-suffix="%" data-duration="2000">95%</div>
+                            <div class="text-sm text-gray-400">Success Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Side - Illustration -->
+            <div class="hidden lg:flex items-center justify-center">
+                <div class="w-full max-w-lg">
+                    <img src="{{ url_for('static', filename='images/home.svg') }}" alt="Investment Illustration" class="w-full h-auto object-contain svg-animate">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Role Selection Cards -->
+        <div class="animate-slide-up max-w-4xl mx-auto mt-16">
+            <div class="grid md:grid-cols-2 gap-6 mb-12">
+                <!-- Founder Card -->
+                <div class="group cursor-pointer transform hover:scale-105 transition-all duration-300" onclick="window.location.href='{{ url_for('auth.signup_role', role='founder') }}'">
+                    <div class="glass-card rounded-2xl p-6 card-hover">
+                        <div class="text-center">
+                            <div class="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                                <i class="fas fa-rocket text-2xl text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold font-display mb-4 text-white group-hover:text-blue-300 transition-colors duration-300">
+                                I am a Startup Founder
+                            </h3>
+                            <p class="text-gray-300 mb-6 leading-relaxed text-sm">
+                                Submit your pitch, get AI-powered analysis, and connect with investors who believe in your vision.
+                            </p>
+                            <div class="flex items-center justify-center">
+                                <button class="btn-primary px-6 py-3 text-sm font-semibold">
+                                    <span class="mr-2">Get Started</span>
+                                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Investor Card -->
+                <div class="group cursor-pointer transform hover:scale-105 transition-all duration-300" onclick="window.location.href='{{ url_for('auth.signup_role', role='investor') }}'">
+                    <div class="glass-card rounded-2xl p-6 card-hover">
+                        <div class="text-center">
+                            <div class="w-16 h-16 gradient-success rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300">
+                                <i class="fas fa-chart-line text-2xl text-white"></i>
+                            </div>
+                            <h3 class="text-xl font-bold font-display mb-4 text-white group-hover:text-green-300 transition-colors duration-300">
+                                I am an Investor
+                            </h3>
+                            <p class="text-gray-300 mb-6 leading-relaxed text-sm">
+                                Discover AI-curated startup opportunities, track your portfolio, and make data-driven investment decisions.
+                            </p>
+                            <div class="flex items-center justify-center">
+                                <button class="btn-primary px-6 py-3 text-sm font-semibold">
+                                    <span class="mr-2">Start Investing</span>
+                                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform duration-300"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Features Section -->
+        <div class="animate-slide-up max-w-5xl mx-auto">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl md:text-3xl font-bold font-display mb-4 text-white">
+                    Why Choose Aicurate?
+                </h2>
+                <p class="text-gray-300 max-w-2xl mx-auto text-sm">
+                    Experience the future of investment with cutting-edge AI technology and seamless user experience.
+                </p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- AI Analysis -->
+                <div class="text-center group glass-card rounded-xl p-6 card-hover">
+                    <div class="w-12 h-12 gradient-success rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-brain text-lg text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3 text-white group-hover:text-green-300 transition-colors duration-300">AI-Powered Analysis</h3>
+                    <p class="text-gray-400 leading-relaxed text-sm">
+                        Advanced AI algorithms analyze pitch decks, financials, and market data to provide comprehensive insights.
+                    </p>
+                </div>
+                
+                <!-- Smart Matching -->
+                <div class="text-center group glass-card rounded-xl p-6 card-hover">
+                    <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-users text-lg text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3 text-white group-hover:text-blue-300 transition-colors duration-300">Smart Matching</h3>
+                    <p class="text-gray-400 leading-relaxed text-sm">
+                        Intelligent matching system connects startups with investors based on sector, risk appetite, and investment criteria.
+                    </p>
+                </div>
+                
+                <!-- Real-time Tracking -->
+                <div class="text-center group glass-card rounded-xl p-6 card-hover">
+                    <div class="w-12 h-12 gradient-warning rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-chart-pie text-lg text-white"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-3 text-white group-hover:text-orange-300 transition-colors duration-300">Real-time Tracking</h3>
+                    <p class="text-gray-400 leading-relaxed text-sm">
+                        Track your investments, monitor startup progress, and get real-time updates on your portfolio performance.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Advanced animations and effects
+    document.addEventListener('DOMContentLoaded', function() {
+        // Typewriter Effect
+        function typeWriter(element, text, speed = 100) {
+            let i = 0;
+            element.innerHTML = '';
+            
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            
+            type();
+        }
+        
+        // Initialize typewriter effect
+        const typewriterElement = document.getElementById('typewriter-text');
+        if (typewriterElement) {
+            typeWriter(typewriterElement, 'Aicurate', 150);
+        }
+        // Counter animation for stats
+        let countersAnimated = false;
+        function animateCounters() {
+            if (countersAnimated) {
+                return;
+            }
+
+            const counters = document.querySelectorAll('[data-target]');
+            if (!counters.length) {
+                return;
+            }
+
+            countersAnimated = true;
+
+            counters.forEach(counter => {
+                const target = parseFloat(counter.dataset.target);
+                if (Number.isNaN(target)) {
+                    return;
+                }
+
+                const duration = parseInt(counter.dataset.duration || '2000', 10);
+                const prefix = counter.dataset.prefix || '';
+                const suffix = counter.dataset.suffix || '';
+                let decimals = parseInt(counter.dataset.decimals || '0', 10);
+                decimals = Number.isNaN(decimals) || decimals < 0 ? 0 : decimals;
+
+                const startValue = parseFloat(counter.dataset.start || '0');
+                const safeStart = Number.isNaN(startValue) ? 0 : startValue;
+                const safeDuration = duration > 0 ? duration : 2000;
+                const startTime = performance.now();
+
+                counter.textContent = `${prefix}${safeStart.toFixed(decimals)}${suffix}`;
+
+                const update = currentTime => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / safeDuration, 1);
+                    const value = safeStart + (target - safeStart) * progress;
+                    counter.textContent = `${prefix}${value.toFixed(decimals)}${suffix}`;
+
+                    if (progress < 1) {
+                        requestAnimationFrame(update);
+                    }
+                };
+
+                requestAnimationFrame(update);
+            });
+        }
+        
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in');
+                    
+                    // Trigger counter animation for stats
+                    if (entry.target.classList.contains('glass-card')) {
+                        setTimeout(animateCounters, 500);
+                    }
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all elements with animation classes
+        document.querySelectorAll('.animate-fade-in, .animate-slide-up, .glass-card').forEach(el => {
+            observer.observe(el);
+        });
+        
+        // Parallax effect for floating elements
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallaxElements = document.querySelectorAll('.float, .float-delayed');
+            
+            parallaxElements.forEach((element, index) => {
+                const speed = 0.5 + (index * 0.1);
+                element.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
+        
+        // Add grid animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes grid-move {
+                0% { transform: translate(0, 0); }
+                100% { transform: translate(50px, 50px); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Add hover effects for cards
+        const cards = document.querySelectorAll('.card-hover');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+                this.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+                this.style.boxShadow = '';
+            });
+        });
+        
+        // Add click ripple effect
+        function createRipple(event) {
+            const button = event.currentTarget;
+            const circle = document.createElement('span');
+            const diameter = Math.max(button.clientWidth, button.clientHeight);
+            const radius = diameter / 2;
+            
+            circle.style.width = circle.style.height = `${diameter}px`;
+            circle.style.left = `${event.clientX - button.offsetLeft - radius}px`;
+            circle.style.top = `${event.clientY - button.offsetTop - radius}px`;
+            circle.classList.add('ripple');
+            
+            const ripple = button.getElementsByClassName('ripple')[0];
+            if (ripple) {
+                ripple.remove();
+            }
+            
+            button.appendChild(circle);
+        }
+        
+        // Add ripple effect to buttons
+        const buttons = document.querySelectorAll('button, .btn-primary, .card-hover');
+        buttons.forEach(button => {
+            button.addEventListener('click', createRipple);
+        });
+        
+        // Add CSS for ripple effect
+        const rippleStyle = document.createElement('style');
+        rippleStyle.textContent = `
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(0);
+                animation: ripple 600ms linear;
+                pointer-events: none;
+            }
+            
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(rippleStyle);
+    });
+</script>
+{% endblock %}

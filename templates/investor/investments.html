@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Your Investments - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto py-12 px-4 space-y-8">
+    <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Your investments</h1>
+            <p class="text-gray-400">Track the startups you have backed and monitor their status.</p>
+        </div>
+        <div class="rounded-full border border-primary-500/30 bg-primary-500/10 px-4 py-1 text-sm text-primary-200">
+            Total deployed: ${{ total_invested | round(2) }}
+        </div>
+    </header>
+
+    {% if not firestore_enabled %}
+        <p class="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+            Firestore is not configured. Create investments via the API or connect the Admin SDK to view real data.
+        </p>
+    {% endif %}
+
+    {% if not investments %}
+        <div class="rounded-2xl border border-dark-700 bg-dark-800 p-8 text-center text-gray-400">
+            <p class="text-lg text-white">No investments recorded</p>
+            <p class="mt-2">Once you invest in a startup, the activity will be displayed here.</p>
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-dark-700 bg-dark-800">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-dark-700 text-sm text-gray-200">
+                    <thead>
+                        <tr class="text-left uppercase tracking-wide text-xs text-gray-500">
+                            <th class="py-3 pr-6">Startup</th>
+                            <th class="py-3 pr-6">Amount</th>
+                            <th class="py-3 pr-6">Type</th>
+                            <th class="py-3 pr-6">Status</th>
+                            <th class="py-3 pr-6">Created</th>
+                            <th class="py-3">Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dark-700">
+                        {% for investment in investments %}
+                        <tr class="hover:bg-dark-700/40">
+                            <td class="py-3 pr-6 font-semibold text-white">{{ investment.startup_name or 'Unnamed startup' }}</td>
+                            <td class="py-3 pr-6">${{ investment.amount | default(0) | round(2) }}</td>
+                            <td class="py-3 pr-6">{{ investment.investment_type | default('equity') | replace('_', ' ') | title }}</td>
+                            <td class="py-3 pr-6">
+                                <span class="rounded-full border px-3 py-1 text-xs uppercase tracking-wide {% if investment.status == 'pending' %}border-amber-500/40 bg-amber-500/10 text-amber-200{% elif investment.status == 'cancelled' %}border-red-500/40 bg-red-500/10 text-red-200{% else %}border-green-500/40 bg-green-500/10 text-green-200{% endif %}">
+                                    {{ investment.status | default('pending') }}
+                                </span>
+                            </td>
+                            <td class="py-3 pr-6">{{ investment.created_at_display or '—' }}</td>
+                            <td class="py-3">{{ investment.updated_at_display or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

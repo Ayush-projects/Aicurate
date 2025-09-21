@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Investment Preferences - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<!-- Animated Background Elements -->
+<div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-20 left-10 w-40 h-40 gradient-primary rounded-full blur-3xl float opacity-20"></div>
+    <div class="absolute top-40 right-20 w-32 h-32 gradient-success rounded-full blur-3xl float-delayed opacity-15"></div>
+    <div class="absolute bottom-40 left-20 w-36 h-36 gradient-warning rounded-full blur-3xl float opacity-10" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-20 right-10 w-28 h-28 gradient-danger rounded-full blur-3xl float-delayed opacity-25"></div>
+</div>
+
+<div class="max-w-6xl mx-auto py-8 px-4 relative z-10">
+    <div class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+        <!-- Header Section -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('investor.dashboard') }}" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200">
+                        <i class="fas fa-arrow-left text-lg"></i>
+                    </a>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 gradient-success rounded-2xl flex items-center justify-center pulse-glow">
+                            <i class="fas fa-sliders-h text-xl text-white"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-white text-shadow">Investment Preferences</h1>
+                            <p class="text-gray-300">Set your investment criteria to receive tailored startup recommendations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form id="preferencesForm" class="space-y-8">
+            <!-- Sectors Section -->
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-industry text-blue-400"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-white">Preferred Sectors</h4>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {% for sector in ['FinTech','HealthTech','EdTech','E-commerce','AI/ML','SaaS','ClimateTech','AgriTech','Biotech','PropTech','InsurTech','CyberTech'] %}
+                    <label class="group cursor-pointer">
+                        <input type="checkbox" name="sectors" value="{{ sector }}" 
+                               class="peer sr-only">
+                        <div class="checkbox-card p-3 rounded-xl border-2 border-white/10 bg-white/5 group-hover:border-blue-400/50 group-hover:bg-blue-500/10 peer-checked:border-green-400 peer-checked:bg-green-500/20 peer-checked:shadow-lg peer-checked:shadow-green-500/20 transition-all duration-200">
+                            <div class="flex items-center justify-center space-x-2">
+                                <i class="fas fa-check-circle text-transparent peer-checked:text-green-400 transition-colors duration-200"></i>
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white peer-checked:text-white">{{ sector }}</span>
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Investment Range Section -->
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-dollar-sign text-green-400"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-white">Investment Range</h4>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Minimum Ticket Size ($)</label>
+                        <div class="relative">
+                            <input type="number" name="ticket_size_min" min="0" step="1000"
+                                   class="form-input w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                                   placeholder="10,000">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <span class="text-gray-400 text-sm">USD</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Maximum Ticket Size ($)</label>
+                        <div class="relative">
+                            <input type="number" name="ticket_size_max" min="0" step="1000"
+                                   class="form-input w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
+                                   placeholder="1,000,000">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <span class="text-gray-400 text-sm">USD</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Investment Stage Section -->
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-purple-400"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-white">Investment Stages</h4>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {% for stage in ['Pre-Seed','Seed','Series A','Series B','Growth'] %}
+                    <label class="group cursor-pointer">
+                        <input type="checkbox" name="investment_stage" value="{{ stage }}" 
+                               class="peer sr-only">
+                        <div class="checkbox-card p-3 rounded-xl border-2 border-white/10 bg-white/5 group-hover:border-purple-400/50 group-hover:bg-purple-500/10 peer-checked:border-purple-400 peer-checked:bg-purple-500/20 peer-checked:shadow-lg peer-checked:shadow-purple-500/20 transition-all duration-200">
+                            <div class="flex items-center justify-center space-x-2">
+                                <i class="fas fa-check-circle text-transparent peer-checked:text-purple-400 transition-colors duration-200"></i>
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white peer-checked:text-white">{{ stage }}</span>
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Geography Section -->
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-globe text-orange-400"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-white">Geographic Focus</h4>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {% for geo in ['North America','Europe','Asia','Africa','Latin America','Oceania'] %}
+                    <label class="group cursor-pointer">
+                        <input type="checkbox" name="geography" value="{{ geo }}" 
+                               class="peer sr-only">
+                        <div class="checkbox-card p-3 rounded-xl border-2 border-white/10 bg-white/5 group-hover:border-orange-400/50 group-hover:bg-orange-500/10 peer-checked:border-orange-400 peer-checked:bg-orange-500/20 peer-checked:shadow-lg peer-checked:shadow-orange-500/20 transition-all duration-200">
+                            <div class="flex items-center justify-center space-x-2">
+                                <i class="fas fa-check-circle text-transparent peer-checked:text-orange-400 transition-colors duration-200"></i>
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white peer-checked:text-white">{{ geo }}</span>
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Business Model Section -->
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-cyan-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-cogs text-cyan-400"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-white">Business Model</h4>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {% for bm in ['B2B','B2C','B2B2C','Marketplace','Subscription'] %}
+                    <label class="group cursor-pointer">
+                        <input type="checkbox" name="business_model" value="{{ bm }}" 
+                               class="peer sr-only">
+                        <div class="checkbox-card p-3 rounded-xl border-2 border-white/10 bg-white/5 group-hover:border-cyan-400/50 group-hover:bg-cyan-500/10 peer-checked:border-cyan-400 peer-checked:bg-cyan-500/20 peer-checked:shadow-lg peer-checked:shadow-cyan-500/20 transition-all duration-200">
+                            <div class="flex items-center justify-center space-x-2">
+                                <i class="fas fa-check-circle text-transparent peer-checked:text-cyan-400 transition-colors duration-200"></i>
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white peer-checked:text-white">{{ bm }}</span>
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Funding Types Section -->
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-pink-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-hand-holding-usd text-pink-400"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-white">Funding Types</h4>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {% for ftype in ['Equity','Debt','Convertible Note','SAFE','Grant'] %}
+                    <label class="group cursor-pointer">
+                        <input type="checkbox" name="funding_types" value="{{ ftype }}" 
+                               class="peer sr-only">
+                        <div class="checkbox-card p-3 rounded-xl border-2 border-white/10 bg-white/5 group-hover:border-pink-400/50 group-hover:bg-pink-500/10 peer-checked:border-pink-400 peer-checked:bg-pink-500/20 peer-checked:shadow-lg peer-checked:shadow-pink-500/20 transition-all duration-200">
+                            <div class="flex items-center justify-center space-x-2">
+                                <i class="fas fa-check-circle text-transparent peer-checked:text-pink-400 transition-colors duration-200"></i>
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white peer-checked:text-white">{{ ftype }}</span>
+                            </div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Risk & Strategy Section -->
+            <div class="space-y-6">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-red-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-red-400"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-white">Risk & Strategy</h4>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Risk Tolerance</label>
+                        <select name="risk_tolerance" class="form-input w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200">
+                            <option value="" disabled selected class="text-gray-500">Select your risk tolerance</option>
+                            <option value="Low" class="text-gray-900">Low - Conservative investments</option>
+                            <option value="Medium" class="text-gray-900">Medium - Balanced approach</option>
+                            <option value="High" class="text-gray-900">High - Aggressive growth</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Expected Exit Timeline (years)</label>
+                        <input type="number" name="exit_timeline" min="1" max="15" 
+                               class="form-input w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200" 
+                               placeholder="5">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Involvement Section -->
+            <div class="space-y-6">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-8 h-8 bg-indigo-500/20 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-indigo-400"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-white">Investment Approach</h4>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Involvement Level</label>
+                        <select name="involvement_level" class="form-input w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200">
+                            <option value="" disabled selected class="text-gray-500">Select involvement level</option>
+                            <option value="Advisory" class="text-gray-900">Advisory - Strategic guidance</option>
+                            <option value="Board Seat" class="text-gray-900">Board Seat - Active governance</option>
+                            <option value="Hands-on" class="text-gray-900">Hands-on - Operational support</option>
+                            <option value="Silent" class="text-gray-900">Silent - Financial only</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-300">Investments per Year</label>
+                        <input type="number" name="number_of_investments_per_year" min="1" max="50" 
+                               class="form-input w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200" 
+                               placeholder="5">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-center pt-8">
+                <button type="submit" id="savePreferencesBtn" class="px-12 py-4 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl text-lg">
+                    <i class="fas fa-save mr-2"></i>Save Preferences & Go to Dashboard
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Preferences styles -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/investor-preferences.css') }}">
+
+<!-- Preferences script -->
+<script src="{{ url_for('static', filename='js/investor_preferences.js') }}"></script>
+{% endblock %}

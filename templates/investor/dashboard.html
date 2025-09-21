@@ -1,0 +1,573 @@
+{% extends "base.html" %}
+
+{% block title %}Investor Dashboard - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<!-- Animated Background Elements -->
+<div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-20 left-10 w-40 h-40 gradient-primary rounded-full blur-3xl float opacity-20"></div>
+    <div class="absolute top-40 right-20 w-32 h-32 gradient-success rounded-full blur-3xl float-delayed opacity-15"></div>
+    <div class="absolute bottom-40 left-20 w-36 h-36 gradient-warning rounded-full blur-3xl float opacity-10" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-20 right-10 w-28 h-28 gradient-danger rounded-full blur-3xl float-delayed opacity-25"></div>
+</div>
+
+<div class="max-w-7xl mx-auto py-12 px-4 space-y-12 relative z-10">
+    <!-- Welcome Section -->
+    <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+        <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 gradient-success rounded-2xl flex items-center justify-center pulse-glow">
+                        <i class="fas fa-chart-line text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-bold text-white text-shadow">Welcome back{% if user.displayName %}, {{ user.displayName }}{% elif user.email %}, {{ user.email }}{% endif %}</h1>
+                        <p class="text-gray-300 text-lg">Discover startups that match your thesis and review existing investments.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4"></div>
+        </div>
+    </section>
+
+    <!-- Stats Cards -->
+    <section class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Deal Insights Card -->
+        <div class="glass-card rounded-2xl p-6 card-hover group lg:col-span-2">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 gradient-warning rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-chart-pie text-white text-lg"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-400 font-medium">Deal Insights</p>
+                    <p class="text-lg font-bold text-white text-shadow">Interactive Dashboard</p>
+                </div>
+            </div>
+            <p class="text-gray-300 text-sm mb-4">Explore detailed analysis with interactive charts, AI insights, and comprehensive startup evaluation data.</p>
+            <a href="{{ url_for('investor.deal_insights') }}" class="btn-primary text-sm px-4 py-2 inline-flex items-center gap-2">
+                <i class="fas fa-arrow-right"></i>
+                View Deal Insights
+            </a>
+        </div>
+        
+        <!-- Accepted Startups Count -->
+        <div class="glass-card rounded-2xl p-6 card-hover group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 gradient-success rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-check-circle text-white text-lg"></i>
+                </div>
+                   <div class="text-right">
+                       <p class="text-sm text-gray-400 font-medium">Accepted</p>
+                       <p class="text-3xl font-bold text-white text-shadow">{{ stats.accepted_count }}</p>
+                   </div>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+                <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full" style="width: {{ (stats.accepted_count / (stats.active_startups if stats.active_startups > 0 else 1)) * 100 }}%"></div>
+            </div>
+        </div>
+        
+        
+        <!-- Rejected Investments Count -->
+        <div class="glass-card rounded-2xl p-6 card-hover group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 gradient-danger rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-times-circle text-white text-lg"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-400 font-medium">Rejected</p>
+                    <p class="text-3xl font-bold text-white text-shadow">{{ stats.rejected_count }}</p>
+                </div>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+                <div class="bg-gradient-to-r from-red-500 to-red-600 h-2 rounded-full" style="width: {{ (stats.rejected_count / (stats.total_investments if stats.total_investments > 0 else 1)) * 100 }}%"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Startups Section -->
+    <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-rocket text-white text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white text-shadow">Available Startups</h2>
+                    <p class="text-gray-400">{{ startups|length }} investment opportunities</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button class="btn-secondary">
+                    <i class="fas fa-filter mr-2"></i>Filter
+                </button>
+                <button class="btn-primary">
+                    <i class="fas fa-search mr-2"></i>Search
+                </button>
+            </div>
+        </div>
+        
+        {% if startups %}
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 items-stretch">
+                {% for startup in startups %}
+                <div class="group relative startup-card h-full">
+                    <!-- Main Card -->
+                    <div class="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl p-6 card-hover group-hover:scale-[1.01] transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 hover:border-gray-300/70 dark:hover:border-gray-600/70 shadow-lg hover:shadow-xl dark:shadow-2xl dark:hover:shadow-gray-900/20 h-full flex flex-col">
+                        <!-- Header Section -->
+                        <div class="mb-6">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                                        {{ startup.startup_name or 'Unnamed Startup' }}
+                                    </h3>
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <span class="px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium rounded-full border border-blue-200 dark:border-blue-700">
+                                            {{ startup.sector or 'Technology' }}
+                                        </span>
+                                    </div>
+                                    <p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2">
+                                        {{ startup.description or 'A promising startup with innovative solutions and strong growth potential.' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metrics Section -->
+                        <div class="space-y-4 mb-6 flex-1">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
+                                    <div class="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                                        {{ startup.overall_score | default(0) | round(1) }}
+                                    </div>
+                                    <div class="text-xs text-gray-600 dark:text-gray-300 font-medium">Overall Score</div>
+                                </div>
+                                <div class="text-center p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
+                                    <div class="text-2xl font-bold text-green-600 dark:text-green-400 mb-1">
+                                        ₹{{ (startup.financials.fundingRequiredINR / 100000) | default(0) | round(0) }}L
+                                    </div>
+                                    <div class="text-xs text-gray-600 dark:text-gray-300 font-medium">Funding Need</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Bar for Score -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600 dark:text-gray-300">Investment Readiness</span>
+                                    <span class="text-gray-900 dark:text-white font-medium">{{ (startup.overall_score | default(0) * 10) | round(0) }}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-blue-500 to-green-500 dark:from-blue-400 dark:to-green-400 rounded-full transition-all duration-1000 ease-out" 
+                                         style="width: {{ (startup.overall_score | default(0) * 10) | round(0) }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions -->
+                        <div class="flex gap-3 mt-auto">
+                            <a href="{{ url_for('investor.startup_deal_insights', startup_id=startup.startup_id) }}" 
+                               class="flex-1 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-xl text-center transition-all duration-300 hover:shadow-md">
+                                View Analysis
+                            </a>
+                            <button class="wishlist-heart-dashboard px-4 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 rounded-xl transition-all duration-300 border border-gray-200 dark:border-gray-600" 
+                                    onclick="toggleWishlistDashboard('{{ startup.startup_id }}')" 
+                                    data-startup-id="{{ startup.startup_id }}">
+                                <i class="fas fa-heart text-sm"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-20">
+                <div class="relative">
+                    <div class="w-32 h-32 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl border border-white/10">
+                        <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                            <i class="fas fa-rocket text-white text-3xl"></i>
+                        </div>
+                    </div>
+                    <div class="absolute inset-0 w-32 h-32 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-full mx-auto blur-xl animate-pulse"></div>
+                </div>
+                <h3 class="text-3xl font-bold text-white mb-4">No Startups Available</h3>
+                <p class="text-gray-400 mb-8 max-w-lg mx-auto text-lg leading-relaxed">
+                    We're currently processing startup applications and building our portfolio. 
+                    Check back soon for exciting investment opportunities that match your criteria.
+                </p>
+                <div class="flex gap-4 justify-center">
+                    <button class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3 px-8 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25">
+                        <i class="fas fa-refresh mr-2"></i>Refresh
+                    </button>
+                    <button class="bg-white/10 hover:bg-white/20 text-white font-semibold py-3 px-8 rounded-2xl transition-all duration-300 hover:scale-105 border border-white/20">
+                        <i class="fas fa-bell mr-2"></i>Get Notified
+                    </button>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Recent Investments Section -->
+    <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+        <div class="flex items-center space-x-4 mb-8">
+            <div class="w-12 h-12 gradient-success rounded-xl flex items-center justify-center">
+                <i class="fas fa-clock text-white text-lg"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-white text-shadow">Recent Investments</h2>
+                <p class="text-gray-400">Your latest investment activity</p>
+            </div>
+        </div>
+        
+        {% if recent_investments %}
+            <div class="space-y-4">
+                {% for investment in recent_investments %}
+                <div class="glass-card rounded-2xl p-6 card-hover group">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 gradient-success rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-handshake text-white text-lg"></i>
+                            </div>
+                            <div>
+                                <p class="text-white font-semibold text-lg">{{ investment.startup_name or 'Unnamed startup' }}</p>
+                                <div class="flex items-center space-x-2 mt-1">
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold status-active">
+                                        <i class="fas fa-circle mr-1 text-xs"></i>
+                                        {{ investment.status | default('pending') | title }}
+                                    </span>
+                                    <span class="text-gray-400 text-sm">•</span>
+                                    <span class="text-gray-400 text-sm">${{ investment.amount | default(0) | round(2) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-400">{{ investment.updated_at_display or investment.created_at_display or 'No timestamp' }}</div>
+                            <div class="text-xs text-gray-500">Last activity</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <div class="w-20 h-20 gradient-warning rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-history text-white text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-white mb-2">No recent investments</h3>
+                <p class="text-gray-400 mb-6">Your investment activity will appear here once you start backing startups.</p>
+                <button class="btn-primary">
+                    <i class="fas fa-search mr-2"></i>Explore Startups
+                </button>
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+<style>
+    /* Enhanced Dashboard Styles */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    /* Professional Card Hover Effects */
+    .card-hover {
+        transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+            0 8px 25px rgba(0, 0, 0, 0.1),
+            0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .card-hover:hover {
+        box-shadow: 
+            0 8px 25px rgba(0, 0, 0, 0.4),
+            0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Professional Card Styling */
+    .professional-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(229, 231, 235, 0.5);
+        box-shadow: 
+            0 4px 6px rgba(0, 0, 0, 0.05),
+            0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark .professional-card {
+        background: rgba(31, 41, 55, 0.95);
+        border: 1px solid rgba(75, 85, 99, 0.5);
+        box-shadow: 
+            0 4px 6px rgba(0, 0, 0, 0.3),
+            0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Progress Bar Animation */
+    .progress-bar {
+        animation: fillProgress 2s ease-out forwards;
+    }
+    
+    @keyframes fillProgress {
+        from { width: 0%; }
+        to { width: var(--progress-width); }
+    }
+    
+    /* Gradient Text */
+    .gradient-text {
+        background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    /* Floating Animation */
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .float-animation {
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    /* Pulse Glow */
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+        50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.5); }
+    }
+    
+    .pulse-glow {
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    /* Staggered Animation for Cards */
+    .startup-card {
+        animation: slideInUp 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    
+    .startup-card:nth-child(1) { animation-delay: 0.1s; }
+    .startup-card:nth-child(2) { animation-delay: 0.2s; }
+    .startup-card:nth-child(3) { animation-delay: 0.3s; }
+    .startup-card:nth-child(4) { animation-delay: 0.4s; }
+    .startup-card:nth-child(5) { animation-delay: 0.5s; }
+    .startup-card:nth-child(6) { animation-delay: 0.6s; }
+    
+    @keyframes slideInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Professional Progress Bar */
+    .progress-bar-fill {
+        background: linear-gradient(90deg, #3b82f6, #10b981);
+        transition: width 1s ease-out;
+    }
+    
+    /* Dashboard wishlist heart styling */
+    .wishlist-heart-dashboard {
+        transition: all 0.3s ease;
+    }
+    
+    .wishlist-heart-dashboard i {
+        color: rgba(156, 163, 175, 0.8);
+        transition: all 0.3s ease;
+    }
+    
+    .wishlist-heart-dashboard.wishlisted {
+        background: rgba(236, 72, 153, 0.1) !important;
+        border-color: rgba(236, 72, 153, 0.3) !important;
+    }
+    
+    .wishlist-heart-dashboard.wishlisted i {
+        color: #ec4899 !important;
+    }
+    
+    .wishlist-heart-dashboard:hover {
+        transform: scale(1.05);
+    }
+    
+</style>
+
+<script>
+    // Dashboard wishlist functions
+    function toggleWishlistDashboard(startupId) {
+        console.log('Toggling wishlist for startup:', startupId);
+        const heartButton = document.querySelector(`[data-startup-id="${startupId}"]`);
+        const isWishlisted = heartButton.classList.contains('wishlisted');
+        
+        console.log('Current wishlist state:', isWishlisted);
+        
+        // Toggle visual state immediately
+        if (isWishlisted) {
+            heartButton.classList.remove('wishlisted');
+            console.log('Removed wishlisted class');
+        } else {
+            heartButton.classList.add('wishlisted');
+            console.log('Added wishlisted class');
+        }
+        
+        // Save to database
+        saveWishlistStatusDashboard(startupId, !isWishlisted);
+    }
+    
+    async function saveWishlistStatusDashboard(startupId, isWishlisted) {
+        console.log('Saving wishlist status for', startupId, ':', isWishlisted);
+        try {
+            const response = await fetch(`/investor/api/wishlist/${startupId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ wishlisted: isWishlisted })
+            });
+            
+            console.log('Save response status:', response.status);
+            const data = await response.json();
+            console.log('Save response data:', data);
+            
+            if (data.success) {
+                const message = isWishlisted ? 'Added to wishlist!' : 'Removed from wishlist!';
+                showToastDashboard(message, 'success');
+                console.log('Successfully saved wishlist status');
+            } else {
+                console.error('Failed to save wishlist:', data);
+                // Revert visual state on error
+                const heartButton = document.querySelector(`[data-startup-id="${startupId}"]`);
+                if (isWishlisted) {
+                    heartButton.classList.remove('wishlisted');
+                } else {
+                    heartButton.classList.add('wishlisted');
+                }
+                showToastDashboard('Failed to update wishlist', 'error');
+            }
+        } catch (error) {
+            console.error('Error updating wishlist:', error);
+            // Revert visual state on error
+            const heartButton = document.querySelector(`[data-startup-id="${startupId}"]`);
+            if (isWishlisted) {
+                heartButton.classList.remove('wishlisted');
+            } else {
+                heartButton.classList.add('wishlisted');
+            }
+            showToastDashboard('Network error', 'error');
+        }
+    }
+    
+    // Show toast notification for dashboard
+    function showToastDashboard(message, type = 'info') {
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        // Add toast styles
+        toast.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 10000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Animate in
+        setTimeout(() => {
+            toast.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 300);
+        }, 3000);
+    }
+    
+    // Initialize wishlist hearts on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM loaded, initializing wishlist hearts...');
+        initializeDashboardWishlistHearts();
+    });
+    
+    // Fallback initialization if DOMContentLoaded already fired
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeDashboardWishlistHearts);
+    } else {
+        // DOM is already loaded
+        console.log('DOM already loaded, initializing wishlist hearts immediately...');
+        initializeDashboardWishlistHearts();
+    }
+    
+    // Initialize all dashboard wishlist hearts
+    async function initializeDashboardWishlistHearts() {
+        const heartButtons = document.querySelectorAll('.wishlist-heart-dashboard');
+        console.log('Found heart buttons:', heartButtons.length);
+        
+        for (const heartButton of heartButtons) {
+            const startupId = heartButton.getAttribute('data-startup-id');
+            console.log('Checking wishlist status for startup:', startupId);
+            
+            try {
+                // Check current wishlist status
+                const response = await fetch(`/investor/api/wishlist/${startupId}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Wishlist data for', startupId, ':', data);
+                    
+                    if (data.success && data.wishlisted) {
+                        heartButton.classList.add('wishlisted');
+                        console.log('Added wishlisted class to', startupId);
+                    } else {
+                        heartButton.classList.remove('wishlisted');
+                        console.log('Removed wishlisted class from', startupId);
+                    }
+                } else {
+                    console.error('Failed to fetch wishlist status:', response.status);
+                }
+            } catch (error) {
+                console.error('Error checking wishlist status for', startupId, ':', error);
+            }
+        }
+    }
+    
+    // Test function to manually initialize hearts (for debugging)
+    function testInitializeHearts() {
+        console.log('Manual test initialization...');
+        initializeDashboardWishlistHearts();
+    }
+    
+    // Make test function available globally
+    window.testInitializeHearts = testInitializeHearts;
+</script>
+{% endblock %}

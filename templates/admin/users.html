@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto py-12 px-4 space-y-8">
+    <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Users</h1>
+            <p class="text-gray-400">Review registered founders, investors, and administrators.</p>
+        </div>
+        {% if firestore_enabled %}
+            <span class="rounded-full border border-green-500/30 bg-green-500/10 px-4 py-1 text-sm text-green-300">Live data</span>
+        {% else %}
+            <span class="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-1 text-sm text-red-300">Offline mode</span>
+        {% endif %}
+    </header>
+
+    {% if not users %}
+        <div class="rounded-2xl border border-dark-700 bg-dark-800 p-8 text-center text-gray-400">
+            <p class="text-lg text-white">No users found</p>
+            <p class="mt-2">Connect to Firestore or create sample data via the Firebase console.</p>
+        </div>
+    {% else %}
+        <div class="rounded-2xl border border-dark-700 bg-dark-800">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-dark-700 text-sm text-gray-200">
+                    <thead>
+                        <tr class="text-left uppercase tracking-wide text-xs text-gray-500">
+                            <th class="py-3 pr-6">Email</th>
+                            <th class="py-3 pr-6">Role</th>
+                            <th class="py-3 pr-6">Active</th>
+                            <th class="py-3 pr-6">Created</th>
+                            <th class="py-3">Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-dark-700">
+                        {% for item in users %}
+                        <tr class="hover:bg-dark-700/40">
+                            <td class="py-3 pr-6 font-semibold text-white">{{ item.email or 'No email' }}</td>
+                            <td class="py-3 pr-6">{{ item.role | default('unknown') | title }}</td>
+                            <td class="py-3 pr-6">
+                                <span class="rounded-full border px-3 py-1 text-xs uppercase tracking-wide {% if item.active %}border-green-500/40 bg-green-500/10 text-green-200{% else %}border-gray-500/40 bg-gray-500/10 text-gray-200{% endif %}">
+                                    {{ 'Active' if item.active else 'Inactive' }}
+                                </span>
+                            </td>
+                            <td class="py-3 pr-6">{{ item.created_at_display or '—' }}</td>
+                            <td class="py-3">{{ item.updated_at_display or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

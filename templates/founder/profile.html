@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Founder Profile - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<!-- Animated Background Elements -->
+<div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-20 left-10 w-40 h-40 gradient-primary rounded-full blur-3xl float opacity-20"></div>
+    <div class="absolute top-40 right-20 w-32 h-32 gradient-success rounded-full blur-3xl float-delayed opacity-15"></div>
+    <div class="absolute bottom-40 left-20 w-36 h-36 gradient-warning rounded-full blur-3xl float opacity-10" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-20 right-10 w-28 h-28 gradient-danger rounded-full blur-3xl float-delayed opacity-25"></div>
+</div>
+
+<div class="max-w-4xl mx-auto py-12 px-4 relative z-10">
+    <div class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+        <div class="flex flex-col gap-8">
+            <!-- Header Section -->
+            <div class="flex items-center space-x-4">
+                {% set avatar_label = user.avatarLabel if user else 'User' %}
+                {% set avatar_initial = user.avatarInitial if user else 'U' %}
+                <div class="w-16 h-16 rounded-2xl overflow-hidden border border-white/20 bg-white/10 flex items-center justify-center text-2xl font-semibold uppercase text-white shadow-lg pulse-glow">
+                    {% if user.photoURL %}
+                        <img src="{{ user.photoURL }}" alt="{{ avatar_label }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <span>{{ avatar_initial }}</span>
+                    {% endif %}
+                </div>
+                <div>
+                    <h1 class="text-4xl font-bold text-white text-shadow">Profile</h1>
+                    <p class="text-gray-300 text-lg">Review your account details and ensure everything looks correct.</p>
+                </div>
+            </div>
+
+            {% if not firestore_enabled %}
+            <div class="glass-card rounded-2xl border border-yellow-500/30 bg-yellow-500/10 px-6 py-4">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i>
+                    <p class="text-yellow-200 font-medium">Firestore is not configured, so profile details are limited to the current session.</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Profile Information -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                        <i class="fas fa-envelope mr-2 text-blue-400"></i>
+                        Contact Information
+                    </h3>
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="text-sm text-gray-400 uppercase tracking-wide">Email</dt>
+                            <dd class="text-lg text-white font-medium">{{ user.email or 'Not available' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-400 uppercase tracking-wide">Display Name</dt>
+                            <dd class="text-lg text-white font-medium">
+                                {% if user.displayName %}
+                                    {{ user.displayName }}
+                                {% elif user.firstName %}
+                                    {{ user.firstName }} {{ user.lastName or '' }}
+                                {% else %}
+                                    Not set
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                        <i class="fas fa-shield-alt mr-2 text-green-400"></i>
+                        Account Status
+                    </h3>
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="text-sm text-gray-400 uppercase tracking-wide">Role</dt>
+                            <dd class="text-lg text-white font-medium">{{ user.role | default('founder') | title }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-400 uppercase tracking-wide">Profile Status</dt>
+                            <dd class="text-lg font-medium">
+                                {% if user.profile_complete %}
+                                    <span class="text-green-400">Complete</span>
+                                {% else %}
+                                    <span class="text-yellow-400">Incomplete</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-400 uppercase tracking-wide">Account Active</dt>
+                            <dd class="text-lg font-medium">
+                                {% if user.active is defined %}
+                                    {% if user.active %}
+                                        <span class="text-green-400">Yes</span>
+                                    {% else %}
+                                        <span class="text-red-400">No</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-gray-400">Unknown</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Action Card -->
+            <div class="glass-card rounded-2xl p-6 border border-blue-500/20 bg-blue-500/5">
+                <div class="flex items-start space-x-4">
+                    <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
+                        <i class="fas fa-cog text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-white mb-2">Need to update something?</h3>
+                        <p class="text-gray-300 mb-4">Use the API endpoints or connect the upcoming settings page to edit your founder profile.</p>
+                        <button class="btn-secondary">
+                            <i class="fas fa-edit mr-2"></i>Edit Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

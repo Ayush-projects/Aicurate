@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Available Startups - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<!-- Animated Background Elements -->
+<div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-20 left-10 w-40 h-40 gradient-primary rounded-full blur-3xl float opacity-20"></div>
+    <div class="absolute top-40 right-20 w-32 h-32 gradient-success rounded-full blur-3xl float-delayed opacity-15"></div>
+    <div class="absolute bottom-40 left-20 w-36 h-36 gradient-warning rounded-full blur-3xl float opacity-10" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-20 right-10 w-28 h-28 gradient-danger rounded-full blur-3xl float-delayed opacity-25"></div>
+</div>
+
+<div class="max-w-5xl mx-auto py-12 px-4 space-y-8 relative z-10">
+    <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Investment opportunities</h1>
+            <p class="text-gray-400">Review startups that are currently raising.</p>
+        </div>
+        {% if firestore_enabled %}
+            <span class="rounded-full border border-green-500/30 bg-green-500/10 px-4 py-1 text-sm text-green-300">Live listings</span>
+        {% else %}
+            <span class="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-1 text-sm text-red-300">Demo only</span>
+        {% endif %}
+    </header>
+
+    {% if not startups %}
+        <div class="rounded-2xl border border-dark-700 bg-dark-800 p-8 text-center text-gray-400">
+            <p class="text-lg text-white">No opportunities available</p>
+            <p class="mt-2">Connect to Firestore to populate startup data or ask a founder to submit a pitch.</p>
+        </div>
+    {% else %}
+        <div class="grid gap-6 md:grid-cols-2">
+            {% for startup in startups %}
+            <article class="rounded-2xl border border-dark-700 bg-dark-800 p-6 flex flex-col gap-4">
+                <header>
+                    <h2 class="text-xl font-semibold text-white">{{ startup.name or 'Unnamed startup' }}</h2>
+                    <p class="text-sm text-gray-400">{{ startup.industry or 'Industry pending' }}</p>
+                </header>
+                <p class="text-sm text-gray-300">{{ startup.description or 'No description provided yet.' }}</p>
+                <div class="glass-effect rounded-lg border border-white/10 p-4 text-sm text-gray-300">
+                    <p><span class="text-gray-500">Funding goal:</span> ${{ startup.funding_goal | default(0) | round(2) }}</p>
+                    <p><span class="text-gray-500">Status:</span> {{ startup.status | default('active') }}</p>
+                    <p><span class="text-gray-500">Updated:</span> {{ startup.updated_at_display or startup.created_at_display or '—' }}</p>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Investor Profile - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<!-- Animated Background Elements -->
+<div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-20 left-10 w-40 h-40 gradient-primary rounded-full blur-3xl float opacity-20"></div>
+    <div class="absolute top-40 right-20 w-32 h-32 gradient-success rounded-full blur-3xl float-delayed opacity-15"></div>
+    <div class="absolute bottom-40 left-20 w-36 h-36 gradient-warning rounded-full blur-3xl float opacity-10" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-20 right-10 w-28 h-28 gradient-danger rounded-full blur-3xl float-delayed opacity-25"></div>
+</div>
+
+<div class="max-w-4xl mx-auto py-12 px-4 relative z-10">
+    <div class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+        <div class="flex flex-col gap-8">
+            <!-- Header Section -->
+            <div class="flex items-center space-x-4">
+                <div class="w-16 h-16 gradient-success rounded-2xl flex items-center justify-center pulse-glow">
+                    <i class="fas fa-chart-line text-2xl text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-4xl font-bold text-white text-shadow">Profile</h1>
+                    <p class="text-gray-300 text-lg">Keep your investor details current to improve startup matching.</p>
+                </div>
+            </div>
+
+            {% if not firestore_enabled %}
+            <div class="glass-card rounded-2xl border border-yellow-500/30 bg-yellow-500/10 px-6 py-4">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i>
+                    <p class="text-yellow-200 font-medium">Firestore is not configured. Only basic session data is available.</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Profile Information -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                        <i class="fas fa-envelope mr-2 text-blue-400"></i>
+                        Contact Information
+                    </h3>
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="text-sm text-gray-400 uppercase tracking-wide">Email</dt>
+                            <dd class="text-lg text-white font-medium">{{ user.email or 'Not available' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-400 uppercase tracking-wide">Display Name</dt>
+                            <dd class="text-lg text-white font-medium">
+                                {% if user.displayName %}
+                                    {{ user.displayName }}
+                                {% elif user.firstName %}
+                                    {{ user.firstName }} {{ user.lastName or '' }}
+                                {% else %}
+                                    Not set
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold text-white mb-4 flex items-center">
+                        <i class="fas fa-shield-alt mr-2 text-green-400"></i>
+                        Account Status
+                    </h3>
+                    <dl class="space-y-4">
+                        <div>
+                            <dt class="text-sm text-gray-400 uppercase tracking-wide">Role</dt>
+                            <dd class="text-lg text-white font-medium">{{ user.role | default('investor') | title }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-400 uppercase tracking-wide">Verified Investor</dt>
+                            <dd class="text-lg font-medium">
+                                {% if user.profile_complete %}
+                                    <span class="text-green-400">Yes</span>
+                                {% else %}
+                                    <span class="text-yellow-400">Pending verification</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm text-gray-400 uppercase tracking-wide">Account Active</dt>
+                            <dd class="text-lg font-medium">
+                                {% if user.active is defined %}
+                                    {% if user.active %}
+                                        <span class="text-green-400">Yes</span>
+                                    {% else %}
+                                        <span class="text-red-400">No</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-gray-400">Unknown</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Preferences Card -->
+            <div class="glass-card rounded-2xl p-6 border border-green-500/20 bg-gradient-to-br from-green-500/10 to-blue-500/10 hover:from-green-500/15 hover:to-blue-500/15 transition-all duration-300">
+                <div class="flex items-start space-x-4">
+                    <div class="w-12 h-12 gradient-success rounded-xl flex items-center justify-center shadow-lg">
+                        <i class="fas fa-sliders-h text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-white mb-2">Investment Preferences</h3>
+                        <p class="text-gray-300 mb-4">Set your investment criteria (sectors, ticket size, geography) to receive tailored startup recommendations.</p>
+                        <a href="{{ url_for('investor.preferences') }}" class="group relative inline-block px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105">
+                            <i class="fas fa-sliders-h mr-2 group-hover:rotate-12 transition-transform duration-200"></i>Set Preferences
+                            <div class="absolute inset-0 bg-white/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

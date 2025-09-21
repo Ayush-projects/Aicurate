@@ -1,0 +1,1355 @@
+{% extends "base.html" %}
+
+{% block title %}Founder Dashboard - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<!-- Animated Background Elements -->
+<div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-20 left-10 w-40 h-40 gradient-primary rounded-full blur-3xl float opacity-20"></div>
+    <div class="absolute top-40 right-20 w-32 h-32 gradient-success rounded-full blur-3xl float-delayed opacity-15"></div>
+    <div class="absolute bottom-40 left-20 w-36 h-36 gradient-warning rounded-full blur-3xl float opacity-10" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-20 right-10 w-28 h-28 gradient-danger rounded-full blur-3xl float-delayed opacity-25"></div>
+</div>
+
+<div class="max-w-7xl mx-auto py-12 px-4 space-y-12 relative z-10">
+    <!-- Welcome Section -->
+    <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+        <div class="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    {% set avatar_label = user.avatarLabel if user else 'User' %}
+                    {% set avatar_initial = user.avatarInitial if user else 'U' %}
+                    <div class="w-16 h-16 rounded-2xl overflow-hidden border border-white/20 bg-white/10 flex items-center justify-center text-2xl font-semibold uppercase text-white shadow-lg pulse-glow">
+                        {% if user.photoURL %}
+                            <img src="{{ user.photoURL }}" alt="{{ avatar_label }}" class="w-full h-full object-cover" loading="lazy">
+                        {% else %}
+                            <span>{{ avatar_initial }}</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h1 class="text-4xl font-bold text-white text-shadow">Welcome back{% if user.displayName %}, {{ user.displayName }}{% elif user.firstName %}, {{ user.firstName }} {{ user.lastName or '' }}{% elif user.email %}, {{ user.email }}{% endif %}</h1>
+                        <p class="text-gray-300 text-lg">Track the progress of your startups and keep investors engaged.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Cards -->
+    <section class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="glass-card rounded-2xl p-6 card-hover group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-building text-white text-lg"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-400 font-medium">Total submissions</p>
+                    <p class="text-3xl font-bold text-white text-shadow">{{ stats.total_startups }}</p>
+                </div>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full" style="width: {% if stats.total_startups > 0 %}{{ (stats.active_startups / stats.total_startups * 100)|round(1) }}{% else %}0{% endif %}%"></div>
+            </div>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 card-hover group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 gradient-success rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-play-circle text-white text-lg"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-400 font-medium">Completed</p>
+                    <p class="text-3xl font-bold text-white text-shadow">{{ stats.active_startups }}</p>
+                </div>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+                <div class="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full" style="width: {% if stats.total_startups > 0 %}{{ (stats.active_startups / stats.total_startups * 100)|round(1) }}{% else %}0{% endif %}%"></div>
+            </div>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 card-hover group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 gradient-warning rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-pause-circle text-white text-lg"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-400 font-medium">Processing</p>
+                    <p class="text-3xl font-bold text-white text-shadow">{{ stats.paused_startups }}</p>
+                </div>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+                <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 h-2 rounded-full" style="width: {% if stats.total_startups > 0 %}{{ (stats.paused_startups / stats.total_startups * 100)|round(1) }}{% else %}0{% endif %}%"></div>
+            </div>
+        </div>
+        
+        <div class="glass-card rounded-2xl p-6 card-hover group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 gradient-danger rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <i class="fas fa-exclamation-triangle text-white text-lg"></i>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-400 font-medium">Failed</p>
+                    <p class="text-3xl font-bold text-white text-shadow">{{ stats.failed_startups }}</p>
+                </div>
+            </div>
+            <div class="w-full bg-gray-700 rounded-full h-2">
+                <div class="bg-gradient-to-r from-red-500 to-red-600 h-2 rounded-full" style="width: {% if stats.total_startups > 0 %}{{ (stats.failed_startups / stats.total_startups * 100)|round(1) }}{% else %}0{% endif %}%"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Startups Table Section -->
+    <section class="glass-effect rounded-3xl p-8 backdrop-blur-xl border border-white/10">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
+                    <i class="fas fa-building text-white text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white text-shadow">Your Submissions</h2>
+                    <p class="text-gray-400">{{ submissions|length }} total submissions</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button class="btn-primary" onclick="showNewSubmissionModal()">
+                    <i class="fas fa-plus mr-2"></i>New Submission
+                </button>
+            </div>
+        </div>
+        
+        {% if not firestore_enabled %}
+            <div class="mb-6 glass-card rounded-2xl border border-yellow-500/30 bg-yellow-500/10 px-6 py-4">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-exclamation-triangle text-yellow-400 text-lg"></i>
+                    <p class="text-yellow-200 font-medium">Connect Firebase Admin SDK to load live startup data.</p>
+                </div>
+            </div>
+        {% endif %}
+        
+        {% if submissions %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead>
+                        <tr class="text-left text-sm uppercase tracking-wide text-gray-400 border-b border-white/10">
+                            <th class="py-4 pr-6 font-semibold">Startup Name</th>
+                            <th class="py-4 pr-6 font-semibold">Sector</th>
+                            <th class="py-4 pr-6 font-semibold">Status</th>
+                            <th class="py-4 pr-6 font-semibold">Processing Stage</th>
+                            <th class="py-4 pr-6 font-semibold">Submitted</th>
+                            <th class="py-4 font-semibold">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-gray-200">
+                        {% for submission in submissions %}
+                        <tr class="hover:bg-white/5 transition-colors duration-300 border-b border-white/5">
+                            <td class="py-4 pr-6">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-rocket text-white text-sm"></i>
+                                    </div>
+                                    <span class="font-semibold text-white">{{ submission.submission.startupName or 'Unnamed startup' }}</span>
+                                </div>
+                            </td>
+                            <td class="py-4 pr-6 text-gray-300">{{ submission.companyProfile.sector or '—' }}</td>
+                            <td class="py-4 pr-6">
+                                {% set status_value = (submission.status or 'awaiting_uploads') %}
+                                {% set status_class = 'status-inactive' %}
+                                {% if status_value in ['completed'] %}
+                                    {% set status_class = 'status-active' %}
+                                {% elif status_value in ['processing', 'queued', 'retrying'] %}
+                                    {% set status_class = 'status-pending' %}
+                                {% elif status_value in ['failed'] %}
+                                    {% set status_class = 'status-inactive' %}
+                                {% endif %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ status_class }}">
+                                    <i class="fas fa-circle mr-2 text-xs"></i>
+                                    {{ status_value | replace('_', ' ') | title }}
+                                </span>
+                            </td>
+                            <td class="py-4 pr-6 text-gray-300">{{ submission.processingStage | default('submitted') | replace('_', ' ') | title }}</td>
+                            <td class="py-4 pr-6 text-gray-400">{{ submission.submission.submittedAt[:10] if submission.submission.submittedAt else '—' }}</td>
+                            <td class="py-4">
+                                <div class="flex items-center space-x-2">
+                                    <button class="text-red-400 hover:text-red-300 transition-colors duration-200" onclick="deleteSubmission('{{ submission.id }}')" title="Delete submission">
+                                        <i class="fas fa-trash text-sm"></i>
+                                    </button>
+                                    <button class="text-blue-400 hover:text-blue-300 transition-colors duration-200" onclick="viewSubmission('{{ submission.id }}')" title="View details">
+                                        <i class="fas fa-eye text-sm"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-16">
+                <div class="w-24 h-24 gradient-primary rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg">
+                    <i class="fas fa-plus text-white text-3xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-white mb-4">No submissions yet</h3>
+                <p class="text-gray-400 mb-8 text-lg max-w-md mx-auto">Get started by creating your first startup submission and let our AI analyze your business.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button class="btn-primary px-8 py-4 text-lg font-semibold" onclick="showNewSubmissionModal()">
+                        <i class="fas fa-rocket mr-2"></i>Create Your First Submission
+                    </button>
+                    <a href="{{ url_for('founder.faq') }}" class="btn-secondary px-8 py-4 text-lg font-semibold">
+                        <i class="fas fa-question-circle mr-2"></i>Learn More
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+
+<!-- New Startup Submission Modal -->
+<div id="newSubmissionModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-gray-900/90 backdrop-blur-xl rounded-3xl p-8 border border-white/20 w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
+                    <i class="fas fa-rocket text-white text-lg"></i>
+            </div>
+            <div>
+                    <h2 class="text-2xl font-bold text-white text-shadow">New Startup Submission</h2>
+                    <p class="text-gray-400">Submit your startup for AI evaluation and investor matching</p>
+                </div>
+            </div>
+            <button onclick="hideNewSubmissionModal()" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <form id="submissionForm" class="space-y-8">
+            <!-- Basic Information -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-semibold text-white flex items-center space-x-2">
+                    <i class="fas fa-info-circle text-blue-400"></i>
+                    <span>Basic Information</span>
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Startup Name *</label>
+                        <input type="text" id="startupName" name="startupName" required
+                               class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Tagline</label>
+                        <input type="text" id="tagline" name="tagline"
+                               class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="One line description of your startup">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Description *</label>
+                    <textarea id="description" name="description" rows="4" required
+                              class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              placeholder="Describe your startup, what problem it solves, and your solution..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">City *</label>
+                        <input type="text" id="city" name="city" required
+                               class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">State *</label>
+                        <input type="text" id="state" name="state" required
+                               class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Country *</label>
+                        <input type="text" id="country" name="country" required
+                               class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Founding Date *</label>
+                        <input type="date" id="foundingDate" name="foundingDate" required
+                               class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Sector</label>
+                        <select id="sector" name="sector"
+                                class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="">Select Sector</option>
+                            <option value="Fintech">Fintech</option>
+                            <option value="Healthtech">Healthtech</option>
+                            <option value="Edtech">Edtech</option>
+                            <option value="E-commerce">E-commerce</option>
+                            <option value="SaaS">SaaS</option>
+                            <option value="AI/ML">AI/ML</option>
+                            <option value="Blockchain">Blockchain</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-semibold text-white flex items-center space-x-2">
+                    <i class="fas fa-cloud-upload-alt text-green-400"></i>
+                    <span>Upload Assets</span>
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Pitch Deck Upload -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-pdf text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-white">Pitch Deck</h4>
+                                <p class="text-sm text-gray-400">PDF, PPT, PPTX (Max 50MB)</p>
+                            </div>
+                        </div>
+                        <div class="file-upload-area" data-file-type="pitch_deck">
+                            <input type="file" id="pitchDeck" accept=".pdf,.ppt,.pptx" class="hidden">
+                            <div class="border-2 border-dashed border-white/30 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-white/5 transition-all duration-300" onclick="document.getElementById('pitchDeck').click()">
+                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-400">Click to upload pitch deck</p>
+                            </div>
+                            <div class="file-preview mt-3 hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Video Pitch Upload -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 gradient-success rounded-lg flex items-center justify-center">
+                                <i class="fas fa-video text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-white">Video Pitch</h4>
+                                <p class="text-sm text-gray-400">MP4, AVI, MOV (Max 500MB)</p>
+                            </div>
+                        </div>
+                        <div class="file-upload-area" data-file-type="video_pitch">
+                            <input type="file" id="videoPitch" accept=".mp4,.avi,.mov,.wmv,.webm" class="hidden">
+                            <div class="border-2 border-dashed border-white/30 rounded-xl p-6 text-center cursor-pointer hover:border-green-400 hover:bg-white/5 transition-all duration-300" onclick="document.getElementById('videoPitch').click()">
+                                <i class="fas fa-video text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-400">Click to upload video pitch</p>
+                            </div>
+                            <div class="file-preview mt-3 hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Audio Pitch Upload -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 gradient-warning rounded-lg flex items-center justify-center">
+                                <i class="fas fa-microphone text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-white">Audio Pitch</h4>
+                                <p class="text-sm text-gray-400">MP3, WAV, M4A (Max 100MB)</p>
+                            </div>
+                        </div>
+                        <div class="file-upload-area" data-file-type="audio_pitch">
+                            <input type="file" id="audioPitch" accept=".mp3,.wav,.m4a,.aac" class="hidden">
+                            <div class="border-2 border-dashed border-white/30 rounded-xl p-6 text-center cursor-pointer hover:border-yellow-400 hover:bg-white/5 transition-all duration-300" onclick="document.getElementById('audioPitch').click()">
+                                <i class="fas fa-microphone text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-400">Click to upload audio pitch</p>
+                            </div>
+                            <div class="file-preview mt-3 hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Financial Model Upload -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 gradient-danger rounded-lg flex items-center justify-center">
+                                <i class="fas fa-chart-line text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-white">Financial Model</h4>
+                                <p class="text-sm text-gray-400">XLSX, XLS, CSV (Max 10MB)</p>
+                            </div>
+                        </div>
+                        <div class="file-upload-area" data-file-type="financial_model">
+                            <input type="file" id="financialModel" accept=".xlsx,.xls,.csv" class="hidden">
+                            <div class="border-2 border-dashed border-white/30 rounded-xl p-6 text-center cursor-pointer hover:border-red-400 hover:bg-white/5 transition-all duration-300" onclick="document.getElementById('financialModel').click()">
+                                <i class="fas fa-file-excel text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-400">Click to upload financial model</p>
+                            </div>
+                            <div class="file-preview mt-3 hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Product Demo Upload -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center">
+                                <i class="fas fa-play-circle text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-white">Product Demo</h4>
+                                <p class="text-sm text-gray-400">MP4, AVI, MOV (Max 500MB)</p>
+                            </div>
+                        </div>
+                        <div class="file-upload-area" data-file-type="product_demo">
+                            <input type="file" id="productDemo" accept=".mp4,.avi,.mov,.wmv,.webm" class="hidden">
+                            <div class="border-2 border-dashed border-white/30 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 hover:bg-white/5 transition-all duration-300" onclick="document.getElementById('productDemo').click()">
+                                <i class="fas fa-play-circle text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-400">Click to upload product demo</p>
+                            </div>
+                            <div class="file-preview mt-3 hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Founder Update Upload -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 gradient-success rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-alt text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-white">Founder Update</h4>
+                                <p class="text-sm text-gray-400">DOCX, DOC, PPTX, PPT, PDF (Max 20MB)</p>
+                            </div>
+                        </div>
+                        <div class="file-upload-area" data-file-type="founder_update">
+                            <input type="file" id="founderUpdate" accept=".docx,.doc,.pdf,.txt,.ppt,.pptx" class="hidden">
+                            <div class="border-2 border-dashed border-white/30 rounded-xl p-6 text-center cursor-pointer hover:border-green-400 hover:bg-white/5 transition-all duration-300" onclick="document.getElementById('founderUpdate').click()">
+                                <i class="fas fa-file-alt text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-400">Click to upload founder update</p>
+                            </div>
+                            <div class="file-preview mt-3 hidden"></div>
+                        </div>
+                    </div>
+
+                    <!-- Supporting Documents Upload -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 gradient-purple rounded-lg flex items-center justify-center">
+                                <i class="fas fa-folder-open text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-white">Supporting Documents</h4>
+                                <p class="text-sm text-gray-400">PDF, DOCX, PPTX, XLSX (Max 25MB)</p>
+                            </div>
+                        </div>
+                        <div class="file-upload-area" data-file-type="supporting_document">
+                            <input type="file" id="supportingDocuments" accept=".pdf,.doc,.docx,.xlsx,.xls,.csv,.txt,.ppt,.pptx" class="hidden">
+                            <div class="border-2 border-dashed border-white/30 rounded-xl p-6 text-center cursor-pointer hover:border-purple-400 hover:bg-white/5 transition-all duration-300" onclick="document.getElementById('supportingDocuments').click()">
+                                <i class="fas fa-folder-open text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-400">Upload market research, legal docs, or other attachments</p>
+                            </div>
+                            <div class="file-preview mt-3 hidden"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Recording Section -->
+            <div class="space-y-6">
+                <h3 class="text-xl font-semibold text-white flex items-center space-x-2">
+                    <i class="fas fa-video text-purple-400"></i>
+                    <span>Record Video Pitch</span>
+                </h3>
+
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 gradient-purple rounded-lg flex items-center justify-center">
+                                <i class="fas fa-video text-white"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-semibold text-white">Record Your Pitch</h4>
+                                <p class="text-sm text-gray-400">Record a video pitch directly in your browser</p>
+                            </div>
+                        </div>
+                        <button type="button" id="startRecording" class="btn-primary">
+                            <i class="fas fa-record-vinyl mr-2"></i>Start Recording
+                        </button>
+                    </div>
+                    
+                    <div id="videoContainer" class="hidden">
+                        <div class="relative bg-black/90 rounded-xl mb-4 overflow-hidden border border-white/20">
+                            <video id="videoPreview" class="w-full h-64 object-cover" autoplay muted></video>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <div class="flex items-center space-x-2 text-white">
+                                    <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                                    <span class="text-sm font-medium">Recording...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center space-x-4">
+                            <button type="button" id="stopRecording" class="btn-danger">
+                                <i class="fas fa-stop mr-2"></i>Stop Recording
+                            </button>
+                            <button type="button" id="saveRecording" class="btn-success hidden">
+                                <i class="fas fa-save mr-2"></i>Save Recording
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-end space-x-4 pt-6 border-t border-white/10">
+                <button type="button" onclick="hideNewSubmissionModal()" class="btn-secondary">
+                    Cancel
+                </button>
+                <button type="submit" id="submitSubmission" class="btn-primary">
+                    <i class="fas fa-paper-plane mr-2"></i>Submit for Processing
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Processing Status Modal -->
+<div id="processingModal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-gray-900/90 backdrop-blur-xl rounded-3xl p-8 border border-white/20 w-full max-w-md shadow-2xl">
+        <div class="text-center">
+            <div class="w-20 h-20 gradient-primary rounded-3xl flex items-center justify-center mx-auto mb-6">
+                <i class="fas fa-cog fa-spin text-white text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-4">Processing Your Submission</h3>
+            <p class="text-gray-400 mb-6">Our AI agents are analyzing your startup data and generating comprehensive metrics. This may take a few minutes.</p>
+            <div class="space-y-2 text-sm text-gray-300">
+                <div class="flex items-center justify-between">
+                    <span>Data Ingestion</span>
+                    <i class="fas fa-check-circle text-green-400"></i>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>AI Analysis</span>
+                    <i class="fas fa-cog fa-spin text-blue-400"></i>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span>Report Generation</span>
+                    <i class="fas fa-clock text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentSubmissionId = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+
+// Show new submission modal
+function showNewSubmissionModal() {
+    document.getElementById('newSubmissionModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+// Hide new submission modal
+function hideNewSubmissionModal() {
+    document.getElementById('newSubmissionModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    resetForm();
+}
+
+// Reset form
+function resetForm() {
+    document.getElementById('submissionForm').reset();
+    document.querySelectorAll('.file-preview').forEach(preview => {
+        preview.classList.add('hidden');
+        preview.innerHTML = '';
+    });
+    document.getElementById('videoContainer').classList.add('hidden');
+    recordedChunks = [];
+}
+
+// Handle file uploads
+document.querySelectorAll('input[type="file"]').forEach(input => {
+    input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const fileType = this.closest('.file-upload-area').dataset.fileType;
+            const preview = this.closest('.file-upload-area').querySelector('.file-preview');
+            
+            preview.innerHTML = `
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-file text-blue-400"></i>
+                        <div>
+                            <p class="text-white font-medium">${file.name}</p>
+                            <p class="text-gray-400 text-sm">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeFile(this)" class="text-red-400 hover:text-red-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            preview.classList.remove('hidden');
+        }
+    });
+});
+
+// Remove file
+function removeFile(button) {
+    const preview = button.closest('.file-preview');
+    const input = preview.closest('.file-upload-area').querySelector('input[type="file"]');
+    input.value = '';
+    preview.classList.add('hidden');
+    preview.innerHTML = '';
+}
+
+// Video recording functionality
+document.getElementById('startRecording').addEventListener('click', async function() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        const videoPreview = document.getElementById('videoPreview');
+        videoPreview.srcObject = stream;
+        
+        document.getElementById('videoContainer').classList.remove('hidden');
+        this.classList.add('hidden');
+        
+        // Start recording
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = event => {
+            if (event.data.size > 0) {
+                recordedChunks.push(event.data);
+            }
+        };
+        
+        mediaRecorder.onstop = () => {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            // Convert to file and add to form
+            const file = new File([blob], 'recorded_pitch.webm', { type: 'video/webm' });
+            const input = document.getElementById('videoPitch');
+            
+            // Create a new FileList-like object
+            const fileList = {
+                0: file,
+                length: 1,
+                item: (index) => index === 0 ? file : null,
+                [Symbol.iterator]: function* () {
+                    yield file;
+                }
+            };
+            
+            // Set the files property
+            Object.defineProperty(input, 'files', {
+                value: fileList,
+                writable: false
+            });
+            
+            // Update preview
+            const preview = input.closest('.file-upload-area').querySelector('.file-preview');
+            preview.innerHTML = `
+                <div class="flex items-center justify-between p-3 bg-white/5 rounded-lg">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-video text-green-400"></i>
+                        <div>
+                            <p class="text-white font-medium">Recorded Pitch Video</p>
+                            <p class="text-gray-400 text-sm">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeFile(this)" class="text-red-400 hover:text-red-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            preview.classList.remove('hidden');
+            
+            // Hide the video container and show start recording button again
+            document.getElementById('videoContainer').classList.add('hidden');
+            document.getElementById('startRecording').classList.remove('hidden');
+            document.getElementById('stopRecording').classList.add('hidden');
+            document.getElementById('saveRecording').classList.add('hidden');
+        };
+        
+        mediaRecorder.start();
+        
+        // Show stop button
+        document.getElementById('stopRecording').classList.remove('hidden');
+        
+    } catch (error) {
+        console.error('Error accessing camera:', error);
+        alert('Error accessing camera. Please check permissions.');
+    }
+});
+
+document.getElementById('stopRecording').addEventListener('click', function() {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        this.classList.add('hidden');
+        document.getElementById('saveRecording').classList.remove('hidden');
+    }
+});
+
+document.getElementById('saveRecording').addEventListener('click', function() {
+    // The video is already saved when recording stops, just hide the container
+    document.getElementById('videoContainer').classList.add('hidden');
+    document.getElementById('startRecording').classList.remove('hidden');
+    this.classList.add('hidden');
+    document.getElementById('stopRecording').classList.add('hidden');
+});
+
+// Form submission
+document.getElementById('submissionForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submissionData = {
+        startupName: document.getElementById('startupName').value,
+        description: document.getElementById('description').value,
+        location: {
+            city: document.getElementById('city').value,
+            state: document.getElementById('state').value,
+            country: document.getElementById('country').value
+        },
+        foundingDate: document.getElementById('foundingDate').value,
+        tagline: document.getElementById('tagline').value,
+        sector: document.getElementById('sector').value
+    };
+    
+    try {
+        // Create submission
+        const response = await fetch('/founder/api/startup-submission', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(submissionData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            currentSubmissionId = result.data.id;
+            
+            // Upload files
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            let uploadPromises = [];
+            
+            for (const input of fileInputs) {
+                if (input.files && input.files.length > 0) {
+                    const file = input.files[0];
+                    const fileType = input.closest('.file-upload-area').dataset.fileType;
+                    
+                    const uploadFormData = new FormData();
+                    uploadFormData.append('file', file);
+                    uploadFormData.append('file_type', fileType);
+                    
+                    const uploadPromise = fetch(`/founder/api/startup-submission/${currentSubmissionId}/upload`, {
+                        method: 'POST',
+                        body: uploadFormData
+                    }).then(async (uploadResponse) => {
+                        if (!uploadResponse.ok) {
+                            const errorText = await uploadResponse.text();
+                            console.error('File upload failed:', uploadResponse.status, errorText);
+                            throw new Error(`File upload failed: ${uploadResponse.statusText}`);
+                        }
+                        return uploadResponse.json();
+                    }).catch((uploadError) => {
+                        console.error('Error uploading file:', uploadError);
+                        return { success: false, error: uploadError.message };
+                    });
+                    
+                    uploadPromises.push(uploadPromise);
+                }
+            }
+            
+            // Wait for all file uploads to complete
+            if (uploadPromises.length > 0) {
+                try {
+                    const uploadResults = await Promise.all(uploadPromises);
+                    const failedUploads = uploadResults.filter(result => !result.success);
+                    if (failedUploads.length > 0) {
+                        console.warn('Some file uploads failed:', failedUploads);
+                    }
+                } catch (error) {
+                    console.error('Error in file uploads:', error);
+                }
+            }
+            
+            // Queue submission for processing now that uploads are complete
+            try {
+                const queueResponse = await fetch(`/founder/api/startup-submission/${currentSubmissionId}/process`, {
+                    method: 'POST'
+                });
+                const queueResult = await queueResponse.json();
+                if (!queueResult.success) {
+                    console.error('Error queueing submission:', queueResult);
+                    alert(queueResult.message || 'Failed to start processing. Please try again.');
+                    return;
+                }
+            } catch (queueError) {
+                console.error('Error triggering processing:', queueError);
+                alert('Could not queue submission for processing. Please try again.');
+                return;
+            }
+
+            // Show processing modal
+            hideNewSubmissionModal();
+            showProcessingModal();
+            
+            // Polling can be added later; for now refresh after short delay
+            setTimeout(() => {
+                hideProcessingModal();
+                location.reload(); // Refresh to show new submission
+            }, 5000);
+            
+        } else {
+            console.error('Submission error:', result);
+            alert('Error creating submission: ' + (result.message || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error submitting startup. Please try again.');
+    }
+});
+
+// Show processing modal
+function showProcessingModal() {
+    document.getElementById('processingModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+// Hide processing modal
+function hideProcessingModal() {
+    document.getElementById('processingModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+
+// Toast notification system
+function showToast(message, type = 'info', duration = 4000) {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    
+    const toastId = 'toast-' + Date.now();
+    const iconMap = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+    
+    const colorMap = {
+        success: 'from-green-500/20 to-green-600/20 border-green-500/30 text-green-400',
+        error: 'from-red-500/20 to-red-600/20 border-red-500/30 text-red-400',
+        warning: 'from-yellow-500/20 to-yellow-600/20 border-yellow-500/30 text-yellow-400',
+        info: 'from-blue-500/20 to-blue-600/20 border-blue-500/30 text-blue-400'
+    };
+    
+    const toastHTML = `
+        <div id="${toastId}" class="transform transition-all duration-300 translate-x-full opacity-0 mb-3">
+            <div class="bg-gradient-to-r ${colorMap[type]} backdrop-blur-xl rounded-xl p-4 border shadow-lg max-w-sm">
+                <div class="flex items-center space-x-3">
+                    <i class="${iconMap[type]} text-lg"></i>
+                    <p class="text-white font-medium">${message}</p>
+                    <button onclick="hideToast('${toastId}')" class="ml-auto text-gray-400 hover:text-white transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    
+    // Animate in
+    setTimeout(() => {
+        const toast = document.getElementById(toastId);
+        if (toast) {
+            toast.classList.remove('translate-x-full', 'opacity-0');
+        }
+    }, 10);
+    
+    // Auto hide
+    setTimeout(() => {
+        hideToast(toastId);
+    }, duration);
+}
+
+function hideToast(toastId) {
+    const toast = document.getElementById(toastId);
+    if (toast) {
+        toast.classList.add('translate-x-full', 'opacity-0');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }
+}
+
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'fixed top-4 right-4 z-50 space-y-2';
+    document.body.appendChild(container);
+    return container;
+}
+
+// Confirmation dialog system
+function showConfirmationDialog(title, message, confirmText, cancelText, onConfirm) {
+    const dialogId = 'confirmationDialog';
+    let dialog = document.getElementById(dialogId);
+    
+    if (!dialog) {
+        dialog = createConfirmationDialog();
+    }
+    
+    // Update content
+    dialog.querySelector('#dialogTitle').textContent = title;
+    dialog.querySelector('#dialogMessage').textContent = message;
+    dialog.querySelector('#confirmBtn').textContent = confirmText;
+    dialog.querySelector('#cancelBtn').textContent = cancelText;
+    
+    // Update confirm button action
+    const confirmBtn = dialog.querySelector('#confirmBtn');
+    confirmBtn.onclick = () => {
+        hideConfirmationDialog();
+        onConfirm();
+    };
+    
+    // Show dialog
+    dialog.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Animate in
+    setTimeout(() => {
+        const content = dialog.querySelector('#dialogContent');
+        if (content) {
+            content.style.transform = 'scale(1)';
+            content.style.opacity = '1';
+        }
+    }, 10);
+}
+
+function hideConfirmationDialog() {
+    const dialog = document.getElementById('confirmationDialog');
+    if (dialog) {
+        const content = dialog.querySelector('#dialogContent');
+        if (content) {
+            content.style.transform = 'scale(0.95)';
+            content.style.opacity = '0';
+        }
+        
+        setTimeout(() => {
+            dialog.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }, 200);
+    }
+}
+
+function createConfirmationDialog() {
+    const dialogHTML = `
+        <div id="confirmationDialog" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+            <div id="dialogContent" class="bg-gradient-to-br from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-2xl rounded-2xl border border-white/20 w-full max-w-md shadow-2xl transform transition-all duration-300 scale-95 opacity-0">
+                <div class="p-6">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <div class="w-12 h-12 gradient-danger rounded-xl flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle text-white text-lg"></i>
+                        </div>
+                        <h3 id="dialogTitle" class="text-xl font-bold text-white">Confirm Action</h3>
+                    </div>
+                    <p id="dialogMessage" class="text-gray-300 mb-6 leading-relaxed">Are you sure you want to proceed?</p>
+                    <div class="flex justify-end space-x-3">
+                        <button id="cancelBtn" onclick="hideConfirmationDialog()" class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-all duration-200">
+                            Cancel
+                        </button>
+                        <button id="confirmBtn" class="px-6 py-3 gradient-danger text-white rounded-xl font-medium transition-all duration-200 hover:scale-105">
+                            Confirm
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', dialogHTML);
+    return document.getElementById('confirmationDialog');
+}
+
+// Delete submission
+async function deleteSubmission(submissionId) {
+    showConfirmationDialog(
+        'Delete Submission',
+        'Are you sure you want to delete this submission? This action cannot be undone.',
+        'Delete',
+        'Cancel',
+        async () => {
+            try {
+                const response = await fetch(`/founder/api/startup-submission/${submissionId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Remove the row from the table
+                    const row = document.querySelector(`button[onclick*="deleteSubmission('${submissionId}')"]`).closest('tr');
+                    if (row) {
+                        row.style.transition = 'all 0.3s ease-out';
+                        row.style.opacity = '0';
+                        row.style.transform = 'translateX(-100%)';
+                        setTimeout(() => {
+                            row.remove();
+                        }, 300);
+                    }
+                    
+                    // Show success toast
+                    showToast('Submission deleted successfully', 'success');
+                    
+                    // Reload page to update stats after a delay
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    showToast('Error deleting submission: ' + (result.message || 'Unknown error'), 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting submission:', error);
+                showToast('Error deleting submission. Please try again.', 'error');
+            }
+        }
+    );
+}
+
+// View submission details
+async function viewSubmission(submissionId) {
+    try {
+        const response = await fetch(`/founder/api/startup-submission/${submissionId}`);
+        const result = await response.json();
+        
+        if (result.success) {
+            showSubmissionModal(result.data);
+        } else {
+            showToast('Error loading submission: ' + (result.message || 'Unknown error'), 'error');
+        }
+    } catch (error) {
+        console.error('Error loading submission:', error);
+        showToast('Error loading submission. Please try again.', 'error');
+    }
+}
+
+function formatStatusText(value) {
+    if (!value) {
+        return 'Unknown';
+    }
+    return value
+        .toString()
+        .toLowerCase()
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
+function getStatusBadgeClasses(status) {
+    const normalized = (status || '').toLowerCase();
+    if (normalized === 'completed') {
+        return 'bg-green-500/20 text-green-400 border border-green-500/30';
+    }
+    if (['processing', 'queued', 'retrying'].includes(normalized)) {
+        return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
+    }
+    if (normalized === 'failed') {
+        return 'bg-red-500/20 text-red-400 border border-red-500/30';
+    }
+    if (normalized === 'awaiting_uploads') {
+        return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
+    }
+    return 'bg-gray-500/20 text-gray-400 border border-gray-500/30';
+}
+
+// Show submission details modal
+function showSubmissionModal(submission) {
+    let modal = document.getElementById('submissionViewModal');
+    if (!modal) {
+        // Create modal if it doesn't exist
+        createSubmissionViewModal();
+        modal = document.getElementById('submissionViewModal');
+    }
+
+    if (!modal) {
+        console.error('Submission modal container not found');
+        return;
+    }
+
+    const setText = (selector, value) => {
+        const element = modal.querySelector(selector);
+        if (element) {
+            element.textContent = value;
+        }
+    };
+
+    const submissionDetails = submission.submission || {};
+    const locationDetails = submissionDetails.location || {};
+
+    // Populate modal with submission data
+    setText('#viewStartupName', submissionDetails.startupName || 'Unnamed Startup');
+    setText('#viewDescription', submissionDetails.description || 'No description provided');
+    setText('#viewLocation', `${locationDetails.city || ''}, ${locationDetails.state || ''}, ${locationDetails.country || ''}`);
+    setText('#viewSector', submission.companyProfile?.sector || 'Not specified');
+    setText('#viewStatus', formatStatusText(submission.status));
+    setText('#viewStage', formatStatusText(submission.processingStage));
+    setText('#viewSubmittedAt', submissionDetails.submittedAt ? new Date(submissionDetails.submittedAt).toLocaleDateString() : 'Unknown');
+
+    // Update status badge styling
+    const statusBadge = modal.querySelector('#statusBadge');
+    if (statusBadge) {
+        const status = submission.status || 'Unknown';
+        statusBadge.className = `inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold mb-2 ${getStatusBadgeClasses(status)}`;
+        statusBadge.textContent = formatStatusText(status);
+    }
+
+    // Show uploaded assets with enhanced design
+    const assetsContainer = modal.querySelector('#viewAssets');
+    if (assetsContainer) {
+        const assets = Array.isArray(submissionDetails.uploadedAssets) ? submissionDetails.uploadedAssets : [];
+        if (assets.length > 0) {
+            assetsContainer.innerHTML = assets.map((asset, index) => {
+                const originalName = asset.original_filename || asset.filename || 'Uploaded file';
+                const assetType = asset.type || 'document';
+                const sizeMb = asset.file_size ? (asset.file_size / 1024 / 1024).toFixed(2) : '0.00';
+                const downloadUrl = asset.url || '#';
+                
+                // Get icon based on file type
+                let icon = 'fas fa-file';
+                if (assetType.includes('video')) icon = 'fas fa-video';
+                else if (assetType.includes('audio')) icon = 'fas fa-music';
+                else if (assetType.includes('image')) icon = 'fas fa-image';
+                else if (assetType.includes('pdf')) icon = 'fas fa-file-pdf';
+                else if (assetType.includes('pitch')) icon = 'fas fa-presentation';
+                
+                return `
+                    <div class="group bg-white/5 hover:bg-white/10 rounded-xl p-4 border border-white/10 hover:border-white/20 transition-all duration-200 hover:scale-[1.02]">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-12 h-12 gradient-primary rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                                    <i class="${icon} text-white text-lg"></i>
+                                </div>
+                                <div>
+                                    <p class="text-white font-medium text-lg">${originalName}</p>
+                                    <div class="flex items-center space-x-3 text-sm text-gray-400">
+                                        <span class="capitalize">${assetType.replace('_', ' ')}</span>
+                                        <span>•</span>
+                                        <span>${sizeMb} MB</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="${downloadUrl}" target="_blank" class="w-10 h-10 bg-blue-500/20 hover:bg-blue-500/30 rounded-lg flex items-center justify-center text-blue-400 hover:text-blue-300 transition-all duration-200 group-hover:scale-110">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            assetsContainer.innerHTML = `
+                <div class="text-center py-12">
+                    <div class="w-16 h-16 gradient-warning rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-paperclip text-white text-xl"></i>
+                    </div>
+                    <p class="text-gray-400 text-lg">No files uploaded</p>
+                    <p class="text-gray-500 text-sm">Files will appear here once uploaded</p>
+                </div>
+            `;
+        }
+    }
+
+    // Show modal with animation
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // Trigger animation
+    setTimeout(() => {
+        const modalContent = modal.querySelector('#modalContent');
+        if (modalContent) {
+            modalContent.style.transform = 'scale(1)';
+            modalContent.style.opacity = '1';
+        }
+    }, 10);
+}
+
+// Create submission view modal
+function createSubmissionViewModal() {
+    const modalHTML = `
+    <div id="submissionViewModal" class="fixed inset-0 bg-black/80 backdrop-blur-lg z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gradient-to-br from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-2xl rounded-3xl border border-white/20 w-full max-w-4xl max-h-[95vh] overflow-hidden shadow-2xl transform transition-all duration-300 scale-95 opacity-0 flex flex-col" id="modalContent">
+            <!-- Header -->
+            <div class="relative bg-gradient-to-r from-blue-600/20 to-purple-600/20 p-6 border-b border-white/10">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
+                            <i class="fas fa-rocket text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-white text-shadow">Submission Details</h2>
+                            <p class="text-gray-400 text-sm">Complete startup information and assets</p>
+                        </div>
+                    </div>
+                    <button onclick="hideSubmissionModal()" class="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-gray-400 hover:text-white transition-all duration-200 group">
+                        <i class="fas fa-times text-lg group-hover:rotate-90 transition-transform duration-200"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto">
+                <div class="p-6 space-y-6">
+                    <!-- Hero Section -->
+                    <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600/10 to-purple-600/10 p-6 border border-white/10">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5"></div>
+                        <div class="relative z-10">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h3 id="viewStartupName" class="text-3xl font-bold text-white mb-2">-</h3>
+                                    <p id="viewSector" class="text-blue-400 font-medium text-lg">-</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold mb-2" id="statusBadge">
+                                        <i class="fas fa-circle mr-2 text-xs"></i>
+                                        <span id="viewStatus">-</span>
+                                    </div>
+                                    <p class="text-gray-400 text-sm">Submitted <span id="viewSubmittedAt">-</span></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4 text-gray-300">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-map-marker-alt text-blue-400"></i>
+                                    <span id="viewLocation">-</span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <i class="fas fa-cog text-purple-400"></i>
+                                    <span id="viewStage">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-8 h-8 gradient-success rounded-lg flex items-center justify-center">
+                                <i class="fas fa-file-alt text-white text-sm"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-white">Description</h3>
+                        </div>
+                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                            <p id="viewDescription" class="text-gray-300 leading-relaxed text-lg">-</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Uploaded Assets -->
+                    <div class="glass-card rounded-2xl p-6">
+                        <div class="flex items-center space-x-3 mb-6">
+                            <div class="w-8 h-8 gradient-warning rounded-lg flex items-center justify-center">
+                                <i class="fas fa-paperclip text-white text-sm"></i>
+                            </div>
+                            <h3 class="text-xl font-semibold text-white">Uploaded Assets</h3>
+                        </div>
+                        <div id="viewAssets" class="space-y-3">
+                            <!-- Assets will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Footer - Fixed at bottom -->
+            <div class="bg-gray-800/50 p-6 border-t border-white/10 flex-shrink-0">
+                <div class="flex justify-end space-x-3">
+                    <button onclick="hideSubmissionModal()" class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-all duration-200 hover:scale-105">
+                        <i class="fas fa-times mr-2"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// Hide submission modal
+function hideSubmissionModal() {
+    const modal = document.getElementById('submissionViewModal');
+    if (modal) {
+        const modalContent = modal.querySelector('#modalContent');
+        if (modalContent) {
+            modalContent.style.transform = 'scale(0.95)';
+            modalContent.style.opacity = '0';
+        }
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }, 200);
+    }
+}
+</script>
+
+<style>
+.gradient-purple {
+    background: linear-gradient(135deg, #8B5CF6, #A855F7);
+}
+
+.file-upload-area:hover .border-dashed {
+    border-color: rgba(59, 130, 246, 0.5);
+}
+
+.file-preview {
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fix select dropdown styling for Windows browsers */
+select {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+select option {
+    background-color: #1a1a1a !important;
+    color: white !important;
+    padding: 8px 12px;
+}
+
+select:focus {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    outline: none !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5) !important;
+}
+
+/* Additional Windows-specific fixes */
+select::-ms-expand {
+    display: none;
+}
+
+select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+</style>
+{% endblock %}

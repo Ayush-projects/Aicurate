@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Login - AI Investment Platform{% endblock %}
+
+{% block main_class %}min-h-screen flex justify-center items-center morphing-bg relative px-4 py-12{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-6xl">
+    <!-- Login Card -->
+    <div class="grid lg:grid-cols-2 gap-16 items-center auth-page-container">
+        <!-- Left Side - Illustration -->
+        <div class="hidden lg:flex items-center justify-center auth-illustration">
+            <div class="w-full max-w-lg">
+                <img src="{{ url_for('static', filename='images/login.svg') }}" alt="Login Illustration" class="w-full h-auto opacity-90 svg-animate">
+            </div>
+        </div>
+        
+        <!-- Right Side - Login Form -->
+        <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-xl space-y-6 auth-form-wide mx-auto lg:mx-0 auth-form-container">
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center mx-auto mb-4 group">
+                    <i class="fas fa-sign-in-alt text-xl text-white group-hover:scale-110 transition-transform duration-300"></i>
+                </div>
+                <h1 class="text-2xl font-bold font-display text-white mb-2">Welcome Back</h1>
+                <p class="text-gray-300 text-sm">Sign in to your account</p>
+            </div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="space-y-4">
+                <div class="group">
+                    <label for="email" class="block text-sm font-medium text-gray-300 mb-2">
+                        Email Address
+                    </label>
+                    <div class="relative">
+                        <input type="email" id="email" name="email" required
+                               class="w-full px-4 py-3 glass-card border border-white/20 rounded-lg text-white placeholder-gray-400 input-focus focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                               placeholder="Enter your email">
+                        <div class="absolute right-3 top-3 text-gray-400">
+                            <i class="fas fa-envelope text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="group">
+                    <label for="password" class="block text-sm font-medium text-gray-300 mb-2">
+                        Password
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="password" name="password" required
+                               class="w-full px-4 py-3 glass-card border border-white/20 rounded-lg text-white placeholder-gray-400 input-focus focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                               placeholder="Enter your password">
+                        <button type="button" onclick="togglePassword()" class="absolute right-3 top-3 text-gray-400 hover:text-white transition-all duration-300">
+                            <i class="fas fa-eye text-sm" id="passwordToggle"></i>
+                        </button>
+                    </div>
+                </div>
+            
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input type="checkbox" id="remember" name="remember"
+                               class="w-4 h-4 text-blue-600 bg-transparent border border-gray-400 rounded focus:ring-blue-500 focus:ring-2">
+                        <label for="remember" class="ml-2 text-sm text-gray-300">Remember me</label>
+                    </div>
+                    <a href="#" class="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-300">Forgot password?</a>
+                </div>
+                
+                <button type="submit" id="loginBtn"
+                        class="w-full btn-primary text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50">
+                    <span id="loginBtnText">Sign In</span>
+                    <i class="fas fa-spinner fa-spin ml-2 hidden" id="loginSpinner"></i>
+                </button>
+            </form>
+            
+            <!-- Divider -->
+            <div class="pt-2 flex items-center space-x-3 text-gray-400 text-sm">
+                <div class="flex-1 border-t border-white/20"></div>
+                <span class="px-2">or</span>
+                <div class="flex-1 border-t border-white/20"></div>
+            </div>
+            
+            <!-- Google Sign In -->
+            <button id="googleSignIn" type="button" class="w-full btn-google">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                <span>Continue with Google</span>
+            </button>
+            
+            <!-- Sign Up Link -->
+            <div class="text-center">
+                <p class="text-gray-300 text-sm">Don't have an account? 
+                    <a href="{{ url_for('auth.signup') }}" class="text-blue-400 hover:text-blue-300 font-semibold transition-colors duration-300">
+                        Sign up here
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="firebase-config" type="application/json">{{ firebase_config | tojson | safe }}</script>
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    
+    // Initialize Firebase
+    const firebaseConfig = JSON.parse(document.getElementById('firebase-config').textContent);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
+    
+    function redirectIfPossible(result) {
+        if (!result) {
+            throw new Error('No response received from server.');
+        }
+
+        if (!result.success) {
+            throw new Error(result.message || 'Authentication failed. Please try again.');
+        }
+
+        const redirectUrl = result.redirect_url || (result.data && result.data.redirect_url);
+        if (!redirectUrl) {
+            throw new Error('Missing redirect location from server response.');
+        }
+
+        window.location.href = redirectUrl;
+    }
+
+    // Toggle password visibility
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordToggle.classList.remove('fa-eye');
+            passwordToggle.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            passwordToggle.classList.remove('fa-eye-slash');
+            passwordToggle.classList.add('fa-eye');
+        }
+    }
+    
+    // Make togglePassword globally available
+    window.togglePassword = togglePassword;
+    
+    // Google Sign In
+    const googleSignInBtn = document.getElementById('googleSignIn');
+    googleSignInBtn.addEventListener('click', async function() {
+        googleSignInBtn.disabled = true;
+        googleSignInBtn.classList.add('opacity-70', 'cursor-wait');
+
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            await user.reload();
+            const idToken = await user.getIdToken();
+            const fullName = (user.displayName || '').trim();
+            let googleFirstName = '';
+            let googleLastName = '';
+
+            if (fullName) {
+                const parts = fullName.split(' ');
+                googleFirstName = parts.shift() || '';
+                googleLastName = parts.join(' ');
+            }
+            
+            // Send token to backend for verification
+            const response = await fetch('/auth/api/verify-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken,
+                    displayName: fullName,
+                    photoURL: user.photoURL,
+                    firstName: googleFirstName,
+                    lastName: googleLastName
+                })
+            });
+            
+            const data = await response.json();
+            redirectIfPossible(data);
+            
+        } catch (error) {
+            console.error('Google sign-in error:', error);
+            showNotification(error.message || 'Google sign-in failed. Please try again.', 'error');
+        } finally {
+            googleSignInBtn.disabled = false;
+            googleSignInBtn.classList.remove('opacity-70', 'cursor-wait');
+        }
+    });
+    
+    // Handle form submission
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const loginBtn = document.getElementById('loginBtn');
+        const loginBtnText = document.getElementById('loginBtnText');
+        const loginSpinner = document.getElementById('loginSpinner');
+        
+        // Show loading state
+        loginBtn.disabled = true;
+        loginBtnText.textContent = 'Signing In...';
+        loginSpinner.classList.remove('hidden');
+        
+        try {
+            // Sign in with Firebase
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            await user.reload();
+            const displayName = (user.displayName || '').trim();
+            const nameParts = displayName ? displayName.split(' ') : [];
+            const firstName = nameParts.length ? nameParts[0] : '';
+            const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+            
+            // Get ID token
+            const idToken = await user.getIdToken();
+            
+            // Send token to backend for verification
+            const response = await fetch('/auth/api/verify-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken,
+                    displayName,
+                    photoURL: user.photoURL,
+                    firstName,
+                    lastName
+                })
+            });
+            
+            const result = await response.json();
+            redirectIfPossible(result);
+            
+        } catch (error) {
+            console.error('Login error:', error);
+            
+            // Show error message
+            const errorMessage = error.message || 'Login failed. Please try again.';
+            showNotification(errorMessage, 'error');
+            
+            // Reset button state
+            loginBtn.disabled = false;
+            loginBtnText.textContent = 'Sign In';
+            loginSpinner.classList.add('hidden');
+        }
+    });
+    
+    // Show notification
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg animate-slide-up ${
+            type === 'error' ? 'bg-red-500' : 'bg-green-500'
+        } text-white`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+</script>
+{% endblock %}

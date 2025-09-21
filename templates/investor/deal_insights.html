@@ -1,0 +1,1246 @@
+{% extends "base.html" %}
+
+{% block title %}Deal Insights - AI Investment Platform{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Enhanced Deal Insights Container - Matching Homepage */
+    .deal-insights-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0f1419 0%, #1a202c 25%, #2d3748 50%, #1a202c 75%, #0f1419 100%);
+        position: relative;
+        overflow: visible;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .deal-insights-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+
+    /* Light mode styles */
+    .light .deal-insights-container {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 25%, #e2e8f0 50%, #edf2f7 75%, #f7fafc 100%);
+    }
+    
+    .light .deal-insights-container::before {
+        background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.05) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 40%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+    }
+
+
+    .light .deal-insights-container::before {
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(0,0,0,0.05)"/><circle cx="75" cy="75" r="1" fill="rgba(0,0,0,0.05)"/><circle cx="50" cy="10" r="0.5" fill="rgba(0,0,0,0.03)"/><circle cx="10" cy="60" r="0.5" fill="rgba(0,0,0,0.03)"/><circle cx="90" cy="40" r="0.5" fill="rgba(0,0,0,0.03)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    }
+
+    .deal-insights-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.05)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    /* Enhanced Header Section - Glass Morphism */
+    .header-section {
+        position: relative;
+        z-index: 10;
+        padding: 3rem 0 2rem 0;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .light .header-section {
+        background: rgba(255, 255, 255, 0.9);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(20px);
+    }
+
+    .header-title {
+        font-size: 2.75rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 0.75rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        letter-spacing: -0.02em;
+    }
+
+    .light .header-title {
+        color: #1e293b;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header-subtitle {
+        font-size: 1.125rem;
+        color: rgba(255,255,255,0.9);
+        margin-bottom: 2.5rem;
+        font-weight: 400;
+        line-height: 1.6;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .light .header-subtitle {
+        color: #64748b;
+    }
+
+    /* Enhanced Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 1.25rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.875rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        position: relative;
+        overflow: hidden;
+        min-width: 160px;
+        justify-content: center;
+    }
+
+    .action-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .action-btn:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        border: none;
+        font-weight: 600;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-primary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s;
+    }
+    
+    .btn-primary:hover::before {
+        left: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    }
+    
+    .btn-primary:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background: rgba(255,255,255,0.15);
+        color: white;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255,255,255,0.25);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
+    }
+
+    .light .btn-secondary {
+        background: rgba(255, 255, 255, 0.8);
+        color: #1e293b;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .light .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Enhanced List Container */
+    .list-container {
+        position: relative;
+        z-index: 10;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem 3rem 1rem;
+    }
+
+    .startup-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Enhanced Startup Cards - Glass Morphism */
+    .startup-card {
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(18px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .startup-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .startup-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 0 30px rgba(102, 126, 234, 0.2);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+    
+    .startup-card:hover::before {
+        opacity: 1;
+    }
+    
+    /* Floating animations for cards */
+    .startup-card:nth-child(odd) {
+        animation: float 4s ease-in-out infinite;
+    }
+    
+    .startup-card:nth-child(even) {
+        animation: float 4s ease-in-out infinite 2s;
+    }
+    
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    .light .startup-card {
+        background: rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .light .startup-card::before {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(16, 185, 129, 0.05));
+    }
+
+    .light .startup-card:hover {
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        border-color: rgba(59, 130, 246, 0.4);
+        transform: translateY(-8px) scale(1.02);
+    }
+
+    /* Enhanced Card Header */
+    .startup-card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .startup-card-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%);
+        pointer-events: none;
+    }
+
+    .startup-logo {
+        width: 72px;
+        height: 72px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 900;
+        flex-shrink: 0;
+        border: 3px solid rgba(255,255,255,0.3);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        position: relative;
+        z-index: 1;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .startup-info {
+        flex: 1;
+        position: relative;
+        z-index: 1;
+    }
+
+    .startup-name {
+        font-size: 1.75rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.01em;
+    }
+
+    .startup-sector {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+    }
+
+    .startup-description {
+        font-size: 0.9rem;
+        opacity: 0.85;
+        line-height: 1.5;
+        max-width: 500px;
+    }
+
+    .match-score {
+        position: absolute;
+        top: 1.5rem;
+        right: 1.5rem;
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(15px);
+        padding: 0.75rem 1.25rem;
+        border-radius: 25px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: 1px solid rgba(255,255,255,0.3);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 1;
+    }
+
+    /* Enhanced Card Body */
+    .startup-card-body {
+        padding: 2rem;
+    }
+
+    .ai-summary {
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        padding: 1.5rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        border-left: 5px solid #4f46e5;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dark .ai-summary {
+        background: linear-gradient(135deg, #1e293b, #334155);
+        border-left-color: #667eea;
+    }
+
+    .ai-summary::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(124, 58, 237, 0.05));
+        pointer-events: none;
+    }
+
+    .dark .ai-summary::before {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    }
+
+    .ai-summary-title {
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .dark .ai-summary-title {
+        color: #f8fafc;
+    }
+
+    .ai-summary-text {
+        color: #4b5563;
+        font-size: 0.95rem;
+        line-height: 1.7;
+        position: relative;
+        z-index: 1;
+    }
+
+    .dark .ai-summary-text {
+        color: #cbd5e1;
+    }
+
+    .light .ai-summary {
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        border-left-color: #3b82f6;
+    }
+
+    .light .ai-summary::before {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(29, 78, 216, 0.05));
+    }
+
+    .light .ai-summary-title {
+        color: #1e293b;
+    }
+
+    .light .ai-summary-text {
+        color: #334155;
+    }
+
+    /* Enhanced Metrics Grid */
+    .metrics-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 1.25rem;
+        margin-bottom: 2rem;
+    }
+
+    .metric-item {
+        text-align: center;
+        padding: 1.25rem 1rem;
+        background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dark .metric-item {
+        background: linear-gradient(135deg, #1e293b, #334155);
+        border: 1px solid #475569;
+    }
+
+    .metric-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.05), rgba(124, 58, 237, 0.05));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .dark .metric-item::before {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+    }
+
+    .metric-item:hover::before {
+        opacity: 1;
+    }
+
+    .metric-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border-color: rgba(79, 70, 229, 0.2);
+    }
+
+    .dark .metric-item:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .dark .metric-value {
+        color: #f8fafc;
+    }
+
+    .metric-label {
+        font-size: 0.8rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        position: relative;
+        z-index: 1;
+    }
+
+    .dark .metric-label {
+        color: #94a3b8;
+    }
+
+    /* Enhanced Card Actions */
+    .card-actions {
+        display: flex;
+        gap: 1.25rem;
+        justify-content: flex-end;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .dark .card-actions {
+        border-top: 1px solid #475569;
+    }
+
+    .action-button {
+        padding: 0.875rem 1.75rem;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+        min-width: 120px;
+        justify-content: center;
+    }
+
+    .action-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .action-button:hover::before {
+        left: 100%;
+    }
+
+    .btn-view-details {
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+    }
+
+    .btn-view-details:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5);
+        background: linear-gradient(135deg, #5b52e8, #8b4aed);
+    }
+
+    .btn-interested {
+        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        color: #16a34a;
+        border: 2px solid #bbf7d0;
+        box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+    }
+
+    .btn-interested:hover {
+        background: linear-gradient(135deg, #bbf7d0, #86efac);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-pass {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #dc2626;
+        border: 2px solid #fecaca;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-pass:hover {
+        background: linear-gradient(135deg, #fecaca, #fca5a5);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+    }
+
+    .no-startups {
+        text-align: center;
+        color: white;
+        padding: 4rem 2rem;
+    }
+
+    .light .no-startups {
+        color: #1e293b;
+    }
+
+    .no-startups-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .no-startups-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .no-startups-subtitle {
+        opacity: 0.8;
+        margin-bottom: 2rem;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .fade-in {
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Enhanced Ranking Badge */
+    .ranking-badge {
+        position: absolute;
+        top: -12px;
+        left: 2rem;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        padding: 0.75rem 1.25rem;
+        border-radius: 25px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        border: 3px solid white;
+        z-index: 10;
+        letter-spacing: 0.5px;
+        min-width: 60px;
+        text-align: center;
+        line-height: 1;
+    }
+
+    /* Enhanced Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .header-title {
+            font-size: 2.25rem;
+        }
+        
+        .header-subtitle {
+            font-size: 1rem;
+            padding: 0 1rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .action-btn {
+            width: 100%;
+            max-width: 280px;
+        }
+        
+        .startup-card-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .startup-logo {
+            width: 64px;
+            height: 64px;
+            font-size: 1.25rem;
+        }
+        
+        .startup-name {
+            font-size: 1.5rem;
+        }
+        
+        .match-score {
+            position: static;
+            align-self: center;
+            margin-top: 0.5rem;
+        }
+        
+        .startup-card-body {
+            padding: 1.5rem;
+        }
+        
+        .metrics-row {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .card-actions {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .action-button {
+        width: 100%;
+        }
+        
+        .ranking-badge {
+            left: 1rem;
+            top: -10px;
+            min-width: 50px;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .header-title {
+            font-size: 1.875rem;
+        }
+        
+        .startup-card-header {
+            padding: 1.25rem;
+        }
+        
+        .startup-card-body {
+            padding: 1.25rem;
+        }
+        
+        .metrics-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .ai-summary {
+            padding: 1.25rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="deal-insights-container">
+    <!-- Header Section -->
+    <div class="header-section">
+        <div class="max-w-4xl mx-auto px-4">
+            <h1 class="header-title fade-in">Deal Insights</h1>
+            <p class="header-subtitle fade-in">AI-powered startup recommendations tailored for you</p>
+            
+            <div class="action-buttons fade-in">
+                <button id="refreshBtn" class="action-btn btn-primary">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh Recommendations
+                </button>
+                <a href="{{ url_for('investor.dashboard') }}" class="action-btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+                    </div>
+                    </div>
+                </div>
+
+    <!-- List Container -->
+    <div class="list-container">
+        <!-- Startup List -->
+        <div id="startupList" class="startup-list">
+            <!-- Startup cards will be dynamically inserted here -->
+            </div>
+
+        <!-- No Startups State -->
+        <div id="noStartupsState" class="no-startups" style="display: none;">
+            <div class="no-startups-icon">
+                <i class="fas fa-search"></i>
+                                    </div>
+            <h3 class="no-startups-title">No Recommendations Available</h3>
+            <p class="no-startups-subtitle">We're working on finding the perfect startup matches for you</p>
+            <button id="refreshBtnEmpty" class="action-btn btn-primary">
+                <i class="fas fa-sync-alt"></i>
+                Refresh Recommendations
+            </button>
+                        </div>
+                    </div>
+                </div>
+
+<script>
+// Global variables
+let currentStartups = [];
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', function() {
+    loadStartupRecommendations();
+    setupEventListeners();
+});
+
+// Setup event listeners
+function setupEventListeners() {
+    const refreshBtn = document.getElementById('refreshBtn');
+    const refreshBtnEmpty = document.getElementById('refreshBtnEmpty');
+    
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', refreshRecommendations);
+    }
+    if (refreshBtnEmpty) {
+        refreshBtnEmpty.addEventListener('click', refreshRecommendations);
+    }
+}
+
+// Load startup recommendations
+function loadStartupRecommendations() {
+    const recommendations = {{ recommendations | tojson if recommendations else 'null' }};
+    const startupReports = {{ startup_reports | tojson if startup_reports else '[]' }};
+    
+    console.log('Recommendations:', recommendations);
+    console.log('Startup Reports:', startupReports);
+    console.log('Debug Info:', {{ debug_info | tojson if debug_info else 'null' }});
+    
+    // If we have recommendations, use them
+    if (recommendations && recommendations.rankings && recommendations.rankings.length > 0) {
+        console.log('Using recommendations-based list');
+        // Create startup list from recommendations
+        currentStartups = recommendations.rankings.map(ranking => {
+            const startupReport = startupReports.find(report => report.startup_id === ranking.startup_id);
+            return {
+                ...ranking,
+                startupReport: startupReport
+            };
+        });
+    } else if (startupReports && startupReports.length > 0) {
+        console.log('Using fallback startup reports list');
+        // Fallback: use all available startup reports
+        currentStartups = startupReports.map(report => ({
+            startup_id: report.startup_id,
+            match_score: 0.5, // Default match score
+            startupReport: report
+        }));
+    } else {
+        console.log('No startups available');
+        showNoStartupsState();
+        return;
+    }
+
+    renderStartupList();
+}
+
+// Enhanced render startup list with staggered animations
+function renderStartupList() {
+    const startupList = document.getElementById('startupList');
+    startupList.innerHTML = '';
+
+    if (currentStartups.length === 0) {
+        showNoStartupsState();
+        return;
+    }
+
+    // Add staggered entrance animations
+    currentStartups.forEach((startup, index) => {
+        const card = createStartupCard(startup, index + 1);
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        startupList.appendChild(card);
+        
+        // Staggered animation
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 150);
+    });
+    
+    // Add card interactions after rendering
+    setTimeout(() => {
+        addCardInteractions();
+    }, currentStartups.length * 150 + 200);
+}
+
+// Create individual startup card
+function createStartupCard(startup, rank) {
+    const card = document.createElement('div');
+    card.className = 'startup-card fade-in';
+    card.style.animationDelay = `${rank * 0.1}s`;
+
+    const startupReport = startup.startupReport || {};
+    const submission = startupReport.submission || {};
+    const companyProfile = startupReport.companyProfile || {};
+    const scores = startupReport.scores || {};
+
+    card.innerHTML = `
+    
+        
+        <div class="startup-card-header">
+            <div class="startup-logo">
+                #${rank}
+                    </div>
+
+            <div class="startup-info">
+                <h3 class="startup-name">${submission.startupName || 'Unknown Startup'}</h3>
+                <p class="startup-sector">${companyProfile.sector || 'Technology'}</p>
+                <p class="startup-description">${companyProfile.description || 'No description available'}</p>
+                    </div>
+
+            <div class="match-score">
+                <i class="fas fa-star"></i>
+                ${Math.round(startup.match_score || 0)}% Match
+                        </div>
+                    </div>
+
+        <div class="startup-card-body">
+            <div class="ai-summary">
+                <div class="ai-summary-title">
+                    <i class="fas fa-brain"></i>
+                    AI Investment Analysis
+                        </div>
+                <div class="ai-summary-text">
+                    ${startup.reasoning || 'No AI analysis available for this startup.'}
+                        </div>
+                    </div>
+
+            <div class="metrics-row">
+                            <div class="metric-item">
+                    <div class="metric-value">${scores.OverallScore || 0}/10</div>
+                    <div class="metric-label">Overall Score</div>
+                            </div>
+                            <div class="metric-item">
+                    <div class="metric-value">${scores.Traction || 0}/10</div>
+                    <div class="metric-label">Traction</div>
+                            </div>
+                            <div class="metric-item">
+                    <div class="metric-value">${scores.TeamQuality || 0}/10</div>
+                    <div class="metric-label">Team Quality</div>
+                            </div>
+                            <div class="metric-item">
+                    <div class="metric-value">${scores.MarketPotential || 0}/10</div>
+                    <div class="metric-label">Market Potential</div>
+                            </div>
+                            <div class="metric-item">
+                    <div class="metric-value">${scores.FinancialHealth || 0}/10</div>
+                    <div class="metric-label">Financial Health</div>
+                            </div>
+                            <div class="metric-item">
+                    <div class="metric-value">${scores.ProductDifferentiation || 0}/10</div>
+                    <div class="metric-label">Product Differentiation</div>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="action-button btn-pass" onclick="handlePass('${startup.startup_id}')">
+                    <i class="fas fa-times"></i>
+                    Pass
+                    </button>
+                <button class="action-button btn-interested" onclick="handleInterested('${startup.startup_id}')">
+                    <i class="fas fa-heart"></i>
+                    Interested
+                    </button>
+                <button class="action-button btn-view-details" onclick="handleViewDetails('${startup.startup_id}')">
+                    <i class="fas fa-chart-line"></i>
+                    View Detailed Analysis
+                    </button>
+                </div>
+            </div>
+    `;
+
+    return card;
+}
+
+// Handle pass
+function handlePass(startupId) {
+    updateInvestorInterest(startupId, 'not_interested');
+}
+
+// Handle interested
+function handleInterested(startupId) {
+    updateInvestorInterest(startupId, 'interested');
+}
+
+// Handle view details
+function handleViewDetails(startupId) {
+    window.location.href = `/investor/deal-insights/${startupId}`;
+}
+
+// Enhanced update investor interest with better UX
+async function updateInvestorInterest(startupId, interestLevel) {
+    const button = event.target.closest('.action-button');
+    const originalText = button.innerHTML;
+    
+    // Set loading state
+    setButtonLoading(button, true, originalText);
+    
+    try {
+        const response = await fetch(`/investor/api/startup-interest/${startupId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ interest_level: interestLevel })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            // Show success message with enhanced feedback
+            const actionText = interestLevel === 'interested' ? 'Added to interested' : 'Marked as passed';
+            showToast(`${actionText} successfully!`, 'success');
+            
+            // Update dashboard count if interested
+            if (interestLevel === 'interested') {
+                updateDashboardCount('interested', 1);
+            }
+            
+            // Add visual feedback to the card
+            const card = button.closest('.startup-card');
+            card.style.transform = 'scale(0.98)';
+            card.style.opacity = '0.7';
+            
+            // Remove card after a short delay
+        setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.transform = 'translateX(-100%)';
+                card.style.opacity = '0';
+        setTimeout(() => {
+                    card.remove();
+                    // Check if we need to show no startups state
+                    if (document.querySelectorAll('.startup-card').length === 0) {
+                        showNoStartupsState();
+                    }
+                }, 500);
+            }, 1000);
+            } else {
+            console.error('Failed to update interest:', data.message);
+            showToast('Failed to update interest. Please try again.', 'error');
+            setButtonLoading(button, false, originalText);
+        }
+    } catch (error) {
+        console.error('Error updating interest:', error);
+        showToast('Network error. Please check your connection.', 'error');
+        setButtonLoading(button, false, originalText);
+    }
+}
+
+// Show no startups state
+function showNoStartupsState() {
+    document.getElementById('startupList').style.display = 'none';
+    document.getElementById('noStartupsState').style.display = 'block';
+}
+
+// Enhanced refresh recommendations with better UX
+async function refreshRecommendations() {
+    const refreshBtn = document.getElementById('refreshBtn');
+    const refreshBtnEmpty = document.getElementById('refreshBtnEmpty');
+    const originalText = refreshBtn ? refreshBtn.innerHTML : '';
+    
+    // Set loading states
+    if (refreshBtn) {
+        setButtonLoading(refreshBtn, true, originalText);
+    }
+    if (refreshBtnEmpty) {
+        setButtonLoading(refreshBtnEmpty, true, '<i class="fas fa-sync-alt"></i> Refresh Recommendations');
+    }
+    
+    // Show loading toast
+    showToast('Refreshing recommendations...', 'info');
+    
+    try {
+        const response = await fetch('/investor/api/rerank', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            showToast('Recommendations refreshed successfully!', 'success');
+            
+            // Add a small delay before reload for better UX
+        setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            showToast('Failed to refresh recommendations: ' + data.message, 'error');
+            if (refreshBtn) setButtonLoading(refreshBtn, false, originalText);
+            if (refreshBtnEmpty) setButtonLoading(refreshBtnEmpty, false, '<i class="fas fa-sync-alt"></i> Refresh Recommendations');
+        }
+    } catch (error) {
+        console.error('Error refreshing recommendations:', error);
+        showToast('Network error. Please check your connection and try again.', 'error');
+        if (refreshBtn) setButtonLoading(refreshBtn, false, originalText);
+        if (refreshBtnEmpty) setButtonLoading(refreshBtnEmpty, false, '<i class="fas fa-sync-alt"></i> Refresh Recommendations');
+    }
+}
+
+// Enhanced toast notification system
+function showToast(message, type = 'info') {
+    // Remove existing toasts
+    const existingToasts = document.querySelectorAll('.toast-notification');
+    existingToasts.forEach(toast => toast.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = `toast-notification fixed top-4 right-4 z-50 px-6 py-4 rounded-xl text-white font-medium shadow-2xl transform transition-all duration-300 ${
+        type === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600' : 
+        type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-600' : 
+        'bg-gradient-to-r from-blue-500 to-blue-600'
+    }`;
+    
+    const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+    toast.innerHTML = `
+        <div class="flex items-center gap-3">
+            <span class="text-lg">${icon}</span>
+            <span>${message}</span>
+            </div>
+        `;
+    
+    // Add entrance animation
+    toast.style.transform = 'translateX(100%)';
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Auto remove with exit animation
+    setTimeout(() => {
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 300);
+    }, 4000);
+}
+
+// Enhanced loading states
+function setButtonLoading(button, isLoading, originalText) {
+    if (isLoading) {
+        button.disabled = true;
+        button.innerHTML = '<div class="loading-spinner"></div> Loading...';
+        button.style.opacity = '0.7';
+    } else {
+        button.disabled = false;
+        button.innerHTML = originalText;
+        button.style.opacity = '1';
+    }
+}
+
+// Enhanced card interactions
+function addCardInteractions() {
+    const cards = document.querySelectorAll('.startup-card');
+    cards.forEach(card => {
+        // Add click ripple effect
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('.action-button')) return; // Don't trigger on button clicks
+            
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple-effect';
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.3);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+            `;
+            
+            const rect = card.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+            
+            card.style.position = 'relative';
+            card.appendChild(ripple);
+            
+            setTimeout(() => ripple.remove(), 600);
+            });
+        });
+    }
+
+// Update dashboard count function
+function updateDashboardCount(type, increment) {
+    // This function would ideally update the dashboard count in real-time
+    // For now, we'll just show a notification that the count has been updated
+    console.log(`Dashboard ${type} count updated by ${increment}`);
+}
+
+// Add ripple animation CSS
+const rippleCSS = `
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
+const style = document.createElement('style');
+style.textContent = rippleCSS;
+document.head.appendChild(style);
+</script>
+{% endblock %}

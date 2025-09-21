@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up - Aicurate{% endblock %}
+
+{% block main_class %}min-h-screen flex justify-center items-center morphing-bg relative px-4 py-12{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-6xl">
+    <!-- Signup Card -->
+    <div class="grid lg:grid-cols-2 gap-16 items-center auth-page-container">
+        <!-- Left Side - Illustration -->
+        <div class="hidden lg:flex items-center justify-center auth-illustration">
+            <div class="w-full max-w-lg">
+                <img src="{{ url_for('static', filename='images/register.svg') }}" alt="Signup Illustration" class="w-full h-auto opacity-90 svg-animate">
+            </div>
+        </div>
+        
+        <!-- Right Side - Signup Form -->
+        <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-lg backdrop-blur-xl space-y-6 auth-form-wide mx-auto lg:mx-0 auth-form-container">
+            <!-- Header -->
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center mx-auto mb-4 group">
+                    <i class="fas fa-user-plus text-xl text-white group-hover:scale-110 transition-transform duration-300"></i>
+                </div>
+                <h1 class="text-2xl font-bold font-display text-white mb-2">Create Account</h1>
+                <p class="text-gray-300 text-sm">Join Aicurate and start your journey</p>
+            </div>
+            
+            <!-- Role Selection -->
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-300 mb-3">I am a:</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button type="button" id="founderBtn" 
+                            class="role-btn p-3 rounded-lg border-2 border-white/20 glass-card hover:border-blue-500 hover:bg-blue-500/10 transition-all duration-200 text-center">
+                        <i class="fas fa-rocket text-lg mb-2 text-blue-400"></i>
+                        <div class="text-sm font-semibold text-white">Founder</div>
+                    </button>
+                    <button type="button" id="investorBtn"
+                            class="role-btn p-3 rounded-lg border-2 border-white/20 glass-card hover:border-green-500 hover:bg-green-500/10 transition-all duration-200 text-center">
+                        <i class="fas fa-chart-line text-lg mb-2 text-green-400"></i>
+                        <div class="text-sm font-semibold text-white">Investor</div>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Signup Form -->
+            <form id="signupForm" class="space-y-4">
+                <input type="hidden" id="selectedRole" name="role" value="">
+                
+                <div class="form-grid-2">
+                    <div>
+                        <label for="firstName" class="block text-sm font-medium text-gray-300 mb-2">First Name</label>
+                        <div class="relative">
+                            <input type="text" id="firstName" name="firstName" required
+                                   class="w-full px-4 py-3 glass-card border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                                   placeholder="Enter first name">
+                            <i class="fas fa-user absolute right-3 top-3 text-gray-400 text-sm"></i>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="lastName" class="block text-sm font-medium text-gray-300 mb-2">Last Name</label>
+                        <div class="relative">
+                            <input type="text" id="lastName" name="lastName" required
+                                   class="w-full px-4 py-3 glass-card border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                                   placeholder="Enter last name">
+                            <i class="fas fa-user absolute right-3 top-3 text-gray-400 text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                    <div class="relative">
+                        <input type="email" id="email" name="email" required
+                               class="w-full px-4 py-3 glass-card border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                               placeholder="Enter your email">
+                        <i class="fas fa-envelope absolute right-3 top-3 text-gray-400 text-sm"></i>
+                    </div>
+                </div>
+                
+                <div class="form-grid-2">
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" id="password" name="password" required
+                                   class="w-full px-4 py-3 glass-card border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                                   placeholder="Create a password">
+                            <button type="button" onclick="togglePassword()" class="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors">
+                                <i class="fas fa-eye text-sm" id="passwordToggle"></i>
+                            </button>
+                        </div>
+                        <div class="mt-1 text-xs text-gray-400">
+                            Password must be at least 6 characters long
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
+                        <div class="relative">
+                            <input type="password" id="confirmPassword" name="confirmPassword" required
+                                   class="w-full px-4 py-3 glass-card border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-300"
+                                   placeholder="Confirm your password">
+                            <i class="fas fa-lock absolute right-3 top-3 text-gray-400 text-sm"></i>
+                        </div>
+                    </div>
+                </div>
+            
+                <div class="flex items-start">
+                    <input type="checkbox" id="terms" name="terms" required
+                           class="w-4 h-4 text-blue-600 bg-transparent border border-gray-400 rounded focus:ring-blue-500 focus:ring-2 mt-1">
+                    <label for="terms" class="ml-2 text-sm text-gray-300">
+                        I agree to the 
+                        <a href="#" class="text-blue-400 hover:text-blue-300 transition-colors">Terms of Service</a> 
+                        and 
+                        <a href="#" class="text-blue-400 hover:text-blue-300 transition-colors">Privacy Policy</a>
+                    </label>
+                </div>
+                
+                <button type="submit" id="signupBtn"
+                        class="w-full btn-primary text-white font-semibold py-3 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span id="signupBtnText">Create Account</span>
+                    <i class="fas fa-spinner fa-spin ml-2 hidden" id="signupSpinner"></i>
+                </button>
+            </form>
+            
+            <!-- Divider -->
+            <div class="pt-2 flex items-center space-x-3 text-gray-400 text-sm">
+                <div class="flex-1 border-t border-white/20"></div>
+                <span class="px-2">or</span>
+                <div class="flex-1 border-t border-white/20"></div>
+            </div>
+
+            <!-- Google Sign Up -->
+            <button id="googleSignup" type="button" class="w-full btn-google">
+                <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
+                <span>Sign up with Google</span>
+            </button>
+
+            <!-- Login Link -->
+            <div class="text-center text-sm text-gray-300">
+                <p class="text-gray-300 text-sm">Already have an account? 
+                    <a href="{{ url_for('auth.login') }}" class="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script id="firebase-config" type="application/json">{{ firebase_config | tojson | safe }}</script>
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    
+    // Initialize Firebase
+    const firebaseConfig = JSON.parse(document.getElementById('firebase-config').textContent);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
+    
+    // Role selection
+    const founderBtn = document.getElementById('founderBtn');
+    const investorBtn = document.getElementById('investorBtn');
+    const selectedRoleInput = document.getElementById('selectedRole');
+    
+    // Set default role if coming from homepage
+    const urlParams = new URLSearchParams(window.location.search);
+    const role = urlParams.get('role') || '{{ selected_role or "" }}';
+    if (role) {
+        selectRole(role);
+    }
+    
+    founderBtn.addEventListener('click', () => selectRole('founder'));
+    investorBtn.addEventListener('click', () => selectRole('investor'));
+    
+    function selectRole(role) {
+        // Reset all buttons
+        document.querySelectorAll('.role-btn').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'bg-blue-500/10', 'border-green-500', 'bg-green-500/10');
+        });
+        
+        // Select the chosen role
+        if (role === 'founder') {
+            founderBtn.classList.add('border-blue-500', 'bg-blue-500/10');
+        } else if (role === 'investor') {
+            investorBtn.classList.add('border-green-500', 'bg-green-500/10');
+        }
+        
+        selectedRoleInput.value = role;
+    }
+    
+    // Toggle password visibility
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            passwordToggle.classList.remove('fa-eye');
+            passwordToggle.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            passwordToggle.classList.remove('fa-eye-slash');
+            passwordToggle.classList.add('fa-eye');
+        }
+    }
+    
+    // Make togglePassword globally available
+    window.togglePassword = togglePassword;
+
+    function redirectIfPossible(result) {
+        if (!result) {
+            throw new Error('No response received from server.');
+        }
+
+        if (!result.success) {
+            throw new Error(result.message || 'Request failed. Please try again.');
+        }
+
+        const redirectUrl = result.redirect_url || (result.data && result.data.redirect_url);
+        if (!redirectUrl) {
+            throw new Error('Missing redirect location from server response.');
+        }
+
+        setTimeout(() => {
+            window.location.href = redirectUrl;
+        }, 100);
+    }
+
+    // Handle form submission
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const role = document.getElementById('selectedRole').value;
+        const terms = document.getElementById('terms').checked;
+        
+        const signupBtn = document.getElementById('signupBtn');
+        const signupBtnText = document.getElementById('signupBtnText');
+        const signupSpinner = document.getElementById('signupSpinner');
+        
+        // Validation
+        if (!role) {
+            showNotification('Please select your role', 'error');
+            return;
+        }
+        
+        if (password !== confirmPassword) {
+            showNotification('Passwords do not match', 'error');
+            return;
+        }
+        
+        if (password.length < 6) {
+            showNotification('Password must be at least 6 characters long', 'error');
+            return;
+        }
+        
+        if (!terms) {
+            showNotification('Please accept the terms and conditions', 'error');
+            return;
+        }
+        
+        // Show loading state
+        signupBtn.disabled = true;
+        signupBtnText.textContent = 'Creating Account...';
+        signupSpinner.classList.remove('hidden');
+        
+        let signupSucceeded = false;
+
+        try {
+            // Create user with Firebase
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            const computedDisplayName = `${firstName} ${lastName}`.trim() || email.split('@')[0];
+            let photoURL = user.photoURL;
+
+            if (!photoURL) {
+                const avatarSeed = encodeURIComponent(computedDisplayName || email.split('@')[0]);
+                photoURL = `https://ui-avatars.com/api/?name=${avatarSeed}&background=1F2937&color=F9FAFB`;
+            }
+
+            try {
+                await updateProfile(user, {
+                    displayName: computedDisplayName,
+                    photoURL
+                });
+            } catch (profileError) {
+                console.warn('Unable to update Firebase profile:', profileError);
+            }
+
+            const userDisplayName = user.displayName || computedDisplayName;
+            const userPhotoURL = user.photoURL || photoURL;
+
+            // Get ID token
+            const idToken = await user.getIdToken(true);
+
+            // Send token to backend to create session/profile
+            const response = await fetch('/auth/api/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken,
+                    role,
+                    email,
+                    firstName,
+                    lastName,
+                    displayName: userDisplayName,
+                    photoURL: userPhotoURL
+                })
+            });
+            
+            const result = await response.json();
+            signupSucceeded = true;
+            redirectIfPossible(result);
+            
+        } catch (error) {
+            console.error('Signup error:', error);
+            
+            // Show error message
+            const errorMessage = error.message || 'Signup failed. Please try again.';
+            showNotification(errorMessage, 'error');
+            
+        } finally {
+            // Reset button state if response didn't trigger a redirect
+            if (!signupSucceeded) {
+                signupBtn.disabled = false;
+                signupBtnText.textContent = 'Create Account';
+                signupSpinner.classList.add('hidden');
+            }
+        }
+    });
+
+    // Google sign up flow
+    const googleSignupBtn = document.getElementById('googleSignup');
+    googleSignupBtn.addEventListener('click', async () => {
+        const role = selectedRoleInput.value;
+
+        if (!role) {
+            showNotification('Please choose whether you are a founder or investor before continuing with Google.', 'error');
+            return;
+        }
+
+        googleSignupBtn.disabled = true;
+        googleSignupBtn.classList.add('opacity-70', 'cursor-wait');
+
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            const idToken = await user.getIdToken();
+            const fullName = (user.displayName || '').trim();
+            let googleFirstName = '';
+            let googleLastName = '';
+
+            if (fullName) {
+                const parts = fullName.split(' ');
+                googleFirstName = parts.shift() || '';
+                googleLastName = parts.join(' ');
+            }
+
+            const response = await fetch('/auth/api/verify-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    idToken,
+                    role,
+                    displayName: fullName,
+                    photoURL: user.photoURL,
+                    firstName: googleFirstName,
+                    lastName: googleLastName
+                }),
+            });
+
+            const data = await response.json();
+            redirectIfPossible(data);
+        } catch (error) {
+            console.error('Google signup error:', error);
+            showNotification(error.message || 'Google signup failed. Please try again.', 'error');
+        } finally {
+            googleSignupBtn.disabled = false;
+            googleSignupBtn.classList.remove('opacity-70', 'cursor-wait');
+        }
+    });
+    
+    // Show notification
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-20 right-4 z-50 px-6 py-3 rounded-lg shadow-lg animate-slide-up ${
+            type === 'error' ? 'bg-red-500' : 'bg-green-500'
+        } text-white`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        // Remove notification after 5 seconds
+        setTimeout(() => {
+            notification.remove();
+        }, 5000);
+    }
+</script>
+{% endblock %}

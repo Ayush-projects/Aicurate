@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Your Startups - AI Investment Platform{% endblock %}
+{% block main_class %}morphing-bg min-h-screen relative overflow-hidden{% endblock %}
+
+{% block content %}
+<!-- Animated Background Elements -->
+<div class="absolute inset-0 overflow-hidden">
+    <div class="absolute top-20 left-10 w-40 h-40 gradient-primary rounded-full blur-3xl float opacity-20"></div>
+    <div class="absolute top-40 right-20 w-32 h-32 gradient-success rounded-full blur-3xl float-delayed opacity-15"></div>
+    <div class="absolute bottom-40 left-20 w-36 h-36 gradient-warning rounded-full blur-3xl float opacity-10" style="animation-delay: 2s;"></div>
+    <div class="absolute bottom-20 right-10 w-28 h-28 gradient-danger rounded-full blur-3xl float-delayed opacity-25"></div>
+</div>
+
+<div class="max-w-5xl mx-auto py-12 px-4 space-y-8 relative z-10">
+    <header class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Your startups</h1>
+            <p class="text-gray-400">Manage investment readiness for each of your ventures.</p>
+        </div>
+        {% if firestore_enabled %}
+            <span class="rounded-full border border-green-500/30 bg-green-500/10 px-4 py-1 text-sm text-green-300">Live data</span>
+        {% else %}
+            <span class="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-1 text-sm text-red-300">Offline mode</span>
+        {% endif %}
+    </header>
+
+    {% if not startups %}
+        <div class="glass-effect rounded-2xl p-8 text-center backdrop-blur-xl border border-white/10">
+            <div class="w-24 h-24 gradient-primary rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg">
+                <i class="fas fa-rocket text-white text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-4">No startups yet</h3>
+            <p class="text-gray-400 mb-8 text-lg max-w-md mx-auto">Create your first startup profile to get started with AI-powered investment analysis.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="btn-primary px-8 py-4 text-lg font-semibold" onclick="createStartup()">
+                    <i class="fas fa-plus mr-2"></i>Create Your First Startup
+                </button>
+                <a href="{{ url_for('founder.faq') }}" class="btn-secondary px-8 py-4 text-lg font-semibold">
+                    <i class="fas fa-question-circle mr-2"></i>Learn More
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <div class="glass-effect rounded-2xl p-6 backdrop-blur-xl border border-white/10">
+            <div class="flex items-center space-x-3 mb-6">
+                <div class="w-12 h-12 gradient-primary rounded-xl flex items-center justify-center">
+                    <i class="fas fa-building text-white text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-white text-shadow">Your Startups</h2>
+                    <p class="text-gray-400">{{ startups|length }} total startups</p>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-sm uppercase tracking-wide text-gray-400 border-b border-white/10">
+                            <th class="py-4 pr-6 font-semibold">Name</th>
+                            <th class="py-4 pr-6 font-semibold">Industry</th>
+                            <th class="py-4 pr-6 font-semibold">Funding Goal</th>
+                            <th class="py-4 pr-6 font-semibold">Status</th>
+                            <th class="py-4 pr-6 font-semibold">Created</th>
+                            <th class="py-4 font-semibold">Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm text-gray-200">
+                        {% for startup in startups %}
+                        <tr class="hover:bg-white/5 transition-colors duration-300 border-b border-white/5">
+                            <td class="py-4 pr-6">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-10 h-10 gradient-primary rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-rocket text-white text-sm"></i>
+                                    </div>
+                                    <span class="font-semibold text-white">{{ startup.name or 'Unnamed startup' }}</span>
+                                </div>
+                            </td>
+                            <td class="py-4 pr-6 text-gray-300">{{ startup.industry or '—' }}</td>
+                            <td class="py-4 pr-6 text-gray-300">${{ startup.funding_goal | default(0) | round(2) }}</td>
+                            <td class="py-4 pr-6">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {% if startup.status == 'active' %}status-active{% elif startup.status == 'paused' %}status-pending{% else %}status-inactive{% endif %}">
+                                    <i class="fas fa-circle mr-2 text-xs"></i>
+                                    {{ startup.status | default('pending') | title }}
+                                </span>
+                            </td>
+                            <td class="py-4 pr-6 text-gray-400">{{ startup.created_at_display or '—' }}</td>
+                            <td class="py-4 text-gray-400">{{ startup.updated_at_display or '—' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function createStartup() {
+    // Redirect to dashboard where users can create new submissions
+    window.location.href = "{{ url_for('founder.dashboard') }}";
+}
+</script>
+{% endblock %}
